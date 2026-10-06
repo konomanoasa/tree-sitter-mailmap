@@ -1,0 +1,25 @@
+CompileFlags:
+  Add:
+    - -std=c17
+    - -xc
+    - -Wall
+    - -Wextra
+    - -Werror
+    - -pedantic
+
+---
+# Standalone headers are checked without their callers.
+If:
+  PathMatch: .*\.h
+CompileFlags:
+  Add:
+    - -xc-header
+    - -Wno-unused-function
+
+---
+# Directly included scanner helpers may be unused in individual tests.
+If:
+  PathMatch: test/[^/]*\.c
+CompileFlags:
+  Add:
+    - -Wno-unused-function

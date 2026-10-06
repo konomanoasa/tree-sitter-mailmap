@@ -1,0 +1,900 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
+  "name": "mailmap",
+  "rules": {
+    "document": {
+      "type": "REPEAT",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "mapping"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "comment"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "blank_line"
+          }
+        ]
+      }
+    },
+    "mapping": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_simple_mapping_start"
+                },
+                {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "FIELD",
+                      "name": "canonical_name",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "name"
+                      }
+                    },
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "FIELD",
+                          "name": "issue",
+                          "content": {
+                            "type": "ALIAS",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_missing_name_separator_issue"
+                            },
+                            "named": true,
+                            "value": "syntax_issue"
+                          }
+                        },
+                        {
+                          "type": "BLANK"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "FIELD",
+                      "name": "commit_email",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "email"
+                      }
+                    },
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "FIELD",
+                          "name": "issue",
+                          "content": {
+                            "type": "ALIAS",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_missing_commit_email_issue"
+                            },
+                            "named": true,
+                            "value": "syntax_issue"
+                          }
+                        },
+                        {
+                          "type": "FIELD",
+                          "name": "issue",
+                          "content": {
+                            "type": "ALIAS",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_incomplete_commit_email_issue"
+                            },
+                            "named": true,
+                            "value": "syntax_issue"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_paired_mapping_start"
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "FIELD",
+                          "name": "canonical_name",
+                          "content": {
+                            "type": "SYMBOL",
+                            "name": "name"
+                          }
+                        },
+                        {
+                          "type": "CHOICE",
+                          "members": [
+                            {
+                              "type": "FIELD",
+                              "name": "issue",
+                              "content": {
+                                "type": "ALIAS",
+                                "content": {
+                                  "type": "SYMBOL",
+                                  "name": "_missing_name_separator_issue"
+                                },
+                                "named": true,
+                                "value": "syntax_issue"
+                              }
+                            },
+                            {
+                              "type": "BLANK"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                },
+                {
+                  "type": "FIELD",
+                  "name": "canonical_email",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "email"
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "FIELD",
+                          "name": "commit_name",
+                          "content": {
+                            "type": "SYMBOL",
+                            "name": "name"
+                          }
+                        },
+                        {
+                          "type": "CHOICE",
+                          "members": [
+                            {
+                              "type": "FIELD",
+                              "name": "issue",
+                              "content": {
+                                "type": "ALIAS",
+                                "content": {
+                                  "type": "SYMBOL",
+                                  "name": "_missing_name_separator_issue"
+                                },
+                                "named": true,
+                                "value": "syntax_issue"
+                              }
+                            },
+                            {
+                              "type": "BLANK"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "FIELD",
+                      "name": "commit_email",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "email"
+                      }
+                    },
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "FIELD",
+                          "name": "issue",
+                          "content": {
+                            "type": "ALIAS",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_missing_commit_email_issue"
+                            },
+                            "named": true,
+                            "value": "syntax_issue"
+                          }
+                        },
+                        {
+                          "type": "FIELD",
+                          "name": "issue",
+                          "content": {
+                            "type": "ALIAS",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_incomplete_commit_email_issue"
+                            },
+                            "named": true,
+                            "value": "syntax_issue"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_comment"
+                },
+                "named": true,
+                "value": "comment"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "ignored_suffix"
+              }
+            ]
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_ending"
+        }
+      ]
+    },
+    "name": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_name_start"
+        },
+        {
+          "type": "REPEAT1",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "name_text"
+              },
+              {
+                "type": "FIELD",
+                "name": "issue",
+                "content": {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_invalid_encoding_issue"
+                  },
+                  "named": true,
+                  "value": "syntax_issue"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_name_end"
+        }
+      ]
+    },
+    "email": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "opening",
+          "content": {
+            "type": "SYMBOL",
+            "name": "email_open"
+          }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "email_text"
+              },
+              {
+                "type": "FIELD",
+                "name": "issue",
+                "content": {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_invalid_encoding_issue"
+                  },
+                  "named": true,
+                  "value": "syntax_issue"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "issue",
+                  "content": {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_missing_email_text_issue"
+                    },
+                    "named": true,
+                    "value": "syntax_issue"
+                  }
+                },
+                {
+                  "type": "FIELD",
+                  "name": "issue",
+                  "content": {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_incomplete_email_text_issue"
+                    },
+                    "named": true,
+                    "value": "syntax_issue"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "closing",
+              "content": {
+                "type": "SYMBOL",
+                "name": "email_close"
+              }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "issue",
+                  "content": {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_missing_email_close_issue"
+                    },
+                    "named": true,
+                    "value": "syntax_issue"
+                  }
+                },
+                {
+                  "type": "FIELD",
+                  "name": "issue",
+                  "content": {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_incomplete_email_close_issue"
+                    },
+                    "named": true,
+                    "value": "syntax_issue"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "_comment": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_comment_start"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "comment_marker"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "comment_text"
+              },
+              {
+                "type": "FIELD",
+                "name": "issue",
+                "content": {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_invalid_encoding_issue"
+                  },
+                  "named": true,
+                  "value": "syntax_issue"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_comment_end"
+        }
+      ]
+    },
+    "comment": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_comment_line_start"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_comment"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "ignored_suffix"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_ending"
+        }
+      ]
+    },
+    "ignored_suffix": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_ignored_start"
+        },
+        {
+          "type": "REPEAT1",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "ignored_text"
+              },
+              {
+                "type": "FIELD",
+                "name": "issue",
+                "content": {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_invalid_encoding_issue"
+                  },
+                  "named": true,
+                  "value": "syntax_issue"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_ignored_end"
+        }
+      ]
+    },
+    "blank_line": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_blank_start"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "ignored_suffix"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_ending"
+        }
+      ]
+    },
+    "_ending": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "line_ending"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_eof"
+        }
+      ]
+    },
+    "_unmatchable": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "PATTERN",
+            "value": "[\\s\\S]"
+          },
+          {
+            "type": "PATTERN",
+            "value": "[^\\s\\S]"
+          }
+        ]
+      }
+    },
+    "_invalid_encoding_outcome": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_invalid_encoding"
+      },
+      "named": true,
+      "value": "invalid_encoding"
+    },
+    "_invalid_encoding_issue": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_invalid_encoding_outcome"
+      },
+      "named": true,
+      "value": "invalid_syntax"
+    },
+    "_missing_name_separator_outcome": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_missing_name_separator"
+      },
+      "named": true,
+      "value": "missing_name_separator"
+    },
+    "_missing_name_separator_issue": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_missing_name_separator_outcome"
+      },
+      "named": true,
+      "value": "invalid_syntax"
+    },
+    "_missing_email_text_outcome": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_missing_email_text"
+      },
+      "named": true,
+      "value": "missing_email_text"
+    },
+    "_missing_email_text_issue": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_missing_email_text_outcome"
+      },
+      "named": true,
+      "value": "invalid_syntax"
+    },
+    "_incomplete_email_text_outcome": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_incomplete_email_text"
+      },
+      "named": true,
+      "value": "missing_email_text"
+    },
+    "_incomplete_email_text_issue": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_incomplete_email_text_outcome"
+      },
+      "named": true,
+      "value": "incomplete_syntax"
+    },
+    "_missing_email_close_outcome": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_missing_email_close"
+      },
+      "named": true,
+      "value": "missing_email_close"
+    },
+    "_missing_email_close_issue": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_missing_email_close_outcome"
+      },
+      "named": true,
+      "value": "invalid_syntax"
+    },
+    "_incomplete_email_close_outcome": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_incomplete_email_close"
+      },
+      "named": true,
+      "value": "missing_email_close"
+    },
+    "_incomplete_email_close_issue": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_incomplete_email_close_outcome"
+      },
+      "named": true,
+      "value": "incomplete_syntax"
+    },
+    "_missing_commit_email_outcome": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_missing_commit_email"
+      },
+      "named": true,
+      "value": "missing_commit_email"
+    },
+    "_missing_commit_email_issue": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_missing_commit_email_outcome"
+      },
+      "named": true,
+      "value": "invalid_syntax"
+    },
+    "_incomplete_commit_email_outcome": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_incomplete_commit_email"
+      },
+      "named": true,
+      "value": "missing_commit_email"
+    },
+    "_incomplete_commit_email_issue": {
+      "type": "ALIAS",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_incomplete_commit_email_outcome"
+      },
+      "named": true,
+      "value": "incomplete_syntax"
+    }
+  },
+  "extras": [
+    {
+      "type": "SYMBOL",
+      "name": "_line_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_layout"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_unmatchable"
+    }
+  ],
+  "conflicts": [],
+  "precedences": [],
+  "externals": [
+    {
+      "type": "SYMBOL",
+      "name": "_line_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_simple_mapping_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_paired_mapping_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_blank_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_comment_line_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_name_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_name_end"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_comment_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_comment_end"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_ignored_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_ignored_end"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_layout"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_eof"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "line_ending"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "name_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "email_open"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "email_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "email_close"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "comment_marker"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "comment_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "ignored_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_invalid_encoding"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_missing_name_separator"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_missing_email_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_incomplete_email_text"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_missing_email_close"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_incomplete_email_close"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_missing_commit_email"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_incomplete_commit_email"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_error_sentinel"
+    }
+  ],
+  "inline": [],
+  "supertypes": [],
+  "reserved": {}
+}

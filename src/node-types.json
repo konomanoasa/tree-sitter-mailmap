@@ -1,0 +1,380 @@
+[
+  {
+    "type": "blank_line",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "ignored_suffix",
+          "named": true
+        },
+        {
+          "type": "line_ending",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "comment",
+    "named": true,
+    "fields": {
+      "issue": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "syntax_issue",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "comment_marker",
+          "named": true
+        },
+        {
+          "type": "comment_text",
+          "named": true
+        },
+        {
+          "type": "ignored_suffix",
+          "named": true
+        },
+        {
+          "type": "line_ending",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "document",
+    "named": true,
+    "root": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "blank_line",
+          "named": true
+        },
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "mapping",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "email",
+    "named": true,
+    "fields": {
+      "closing": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "email_close",
+            "named": true
+          }
+        ]
+      },
+      "issue": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "syntax_issue",
+            "named": true
+          }
+        ]
+      },
+      "opening": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "email_open",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "email_text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ignored_suffix",
+    "named": true,
+    "fields": {
+      "issue": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "syntax_issue",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "ignored_text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "incomplete_syntax",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "missing_commit_email",
+          "named": true
+        },
+        {
+          "type": "missing_email_close",
+          "named": true
+        },
+        {
+          "type": "missing_email_text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "invalid_syntax",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "invalid_encoding",
+          "named": true
+        },
+        {
+          "type": "missing_commit_email",
+          "named": true
+        },
+        {
+          "type": "missing_email_close",
+          "named": true
+        },
+        {
+          "type": "missing_email_text",
+          "named": true
+        },
+        {
+          "type": "missing_name_separator",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "mapping",
+    "named": true,
+    "fields": {
+      "canonical_email": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "email",
+            "named": true
+          }
+        ]
+      },
+      "canonical_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "name",
+            "named": true
+          }
+        ]
+      },
+      "commit_email": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "email",
+            "named": true
+          }
+        ]
+      },
+      "commit_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "name",
+            "named": true
+          }
+        ]
+      },
+      "issue": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "syntax_issue",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "ignored_suffix",
+          "named": true
+        },
+        {
+          "type": "line_ending",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "name",
+    "named": true,
+    "fields": {
+      "issue": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "syntax_issue",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "name_text",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "syntax_issue",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "incomplete_syntax",
+          "named": true
+        },
+        {
+          "type": "invalid_syntax",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "comment_marker",
+    "named": true
+  },
+  {
+    "type": "comment_text",
+    "named": true
+  },
+  {
+    "type": "email_close",
+    "named": true
+  },
+  {
+    "type": "email_open",
+    "named": true
+  },
+  {
+    "type": "email_text",
+    "named": true
+  },
+  {
+    "type": "ignored_text",
+    "named": true
+  },
+  {
+    "type": "invalid_encoding",
+    "named": true
+  },
+  {
+    "type": "line_ending",
+    "named": true
+  },
+  {
+    "type": "missing_commit_email",
+    "named": true
+  },
+  {
+    "type": "missing_email_close",
+    "named": true
+  },
+  {
+    "type": "missing_email_text",
+    "named": true
+  },
+  {
+    "type": "missing_name_separator",
+    "named": true
+  },
+  {
+    "type": "name_text",
+    "named": true
+  }
+]

@@ -1,0 +1,96 @@
+==================
+Name mapping
+==================
+Name <old>
+---
+(document
+  (mapping
+    (name (name_text))
+    (email (email_open) (email_text) (email_close))))
+
+==================
+Email mapping
+==================
+<new> <old>
+---
+(document
+  (mapping
+    (email (email_open) (email_text) (email_close))
+    (email (email_open) (email_text) (email_close))))
+
+==================
+Name and email mapping
+==================
+Name <new> <old>
+---
+(document
+  (mapping
+    (name (name_text))
+    (email (email_open) (email_text) (email_close))
+    (email (email_open) (email_text) (email_close))))
+
+==================
+Name-qualified mapping
+==================
+Name <new> Old <old>
+---
+(document
+  (mapping
+    (name (name_text))
+    (email (email_open) (email_text) (email_close))
+    (name (name_text))
+    (email (email_open) (email_text) (email_close))))
+
+==================
+Incomplete address at EOF
+==================
+Name <old
+---
+(document
+  (mapping
+    (name (name_text))
+    (email
+      (email_open)
+      (email_text)
+      (syntax_issue (incomplete_syntax (missing_email_close))))))
+
+==================
+Missing address and following mapping
+==================
+Name
+Next <old>
+---
+(document
+  (mapping
+    (name (name_text))
+    (syntax_issue (invalid_syntax (missing_commit_email)))
+    (line_ending))
+  (mapping
+    (name (name_text))
+    (email (email_open) (email_text) (email_close))))
+
+==================
+Ignored suffix and inline comment
+==================
+Name <old> extra   # note
+---
+(document
+  (mapping
+    (name (name_text))
+    (email (email_open) (email_text) (email_close))
+    (ignored_suffix (ignored_text))
+    (comment (comment_marker) (comment_text))))
+
+==================
+Standalone comment and blank line
+==================
+# note
+
+Name <old>
+---
+(document
+  (comment (comment_marker) (comment_text) (line_ending))
+  (blank_line (line_ending))
+  (mapping
+    (name (name_text))
+    (email (email_open) (email_text) (email_close))))

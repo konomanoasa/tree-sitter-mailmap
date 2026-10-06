@@ -1,0 +1,2128 @@
+{
+  "version": "git version 2.56.0",
+  "cases": [
+    {
+      "source": "Name <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "<new@example.org> <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <new@example.org>",
+        "Other <new@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org> <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <new@example.org>",
+        "Name <new@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org> Old <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <new@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name<old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": " Name <old@example.org> ",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "<> <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <> <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org> <>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Name <new@example.org>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "<new@example.org> Old <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <new@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "<old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> garbage",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org> Old",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Name <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> <",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> <other>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org> <old@example.org> <extra>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <new@example.org>",
+        "Name <new@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org> <old@example.org> garbage",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <new@example.org>",
+        "Name <new@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org>\u0000tail",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\u0000 <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org\u0000>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> #comment",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name #comment <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name #comment <old@example.org>",
+        "Name #comment <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old#comment@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Name <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": " #comment <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "#comment <old@example.org>",
+        "#comment <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name < old@example.org >",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Name < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old name@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Name <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <x>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Name <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org>\r",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org>\rOther <x>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name > <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name > <old@example.org>",
+        "Name > <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <<old@example.org>>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Name <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\tName <old@example.org>\t",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\t<old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\tMore <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name\tMore <old@example.org>",
+        "Name\tMore <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\rName <old@example.org>\r",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\r<old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\rMore <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name\rMore <old@example.org>",
+        "Name\rMore <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\u000bName <old@example.org>\u000b",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "\u000bName <old@example.org>",
+        "\u000bName <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\u000b<old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name\u000b <old@example.org>",
+        "Name\u000b <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\u000bMore <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name\u000bMore <old@example.org>",
+        "Name\u000bMore <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\fName <old@example.org>\f",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "\fName <old@example.org>",
+        "\fName <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\f<old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name\f <old@example.org>",
+        "Name\f <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\fMore <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name\fMore <old@example.org>",
+        "Name\fMore <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": " Name <old@example.org> ",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        " Name <old@example.org>",
+        " Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name  <old@example.org>",
+        "Name  <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name More <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "output": [
+        "Name More <old@example.org>",
+        "Name More <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < old@example.org >",
+        "Old <old name@example.org>",
+        "Old <x>",
+        "Old <old#comment@example.org>",
+        "Old <<old@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Before <old@example.org>\n<old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Before <old@example.org>",
+        "Before <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "<old@example.org>\nAfter <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "After <old@example.org>",
+        "After <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Before <old@example.org>\n<new@example.org> Old <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <new@example.org>",
+        "Before <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org><old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Name <new@example.org>",
+        "Name <new@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org>Old<old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Name <new@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org> <old@example.org>\u0000tail\nNext <x>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Name <new@example.org>",
+        "Name <new@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Next <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\u0000tail\nNext <x>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Next <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name\rMore <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Name\rMore <old@example.org>",
+        "Name\rMore <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org>\rOther <x>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org>\u0000 <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Name <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> <>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Name <old@example.org>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <> <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "<> <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name < >",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Name < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <new@example.org> Old <>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Name <new@example.org>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "<new@example.org> <old@example.org> tail",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <new@example.org>",
+        "Other <new@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> dangling <",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> dangling <other",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> dangling <other>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> <other> <x>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Name <old@example.org>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> <other>>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Name <old@example.org>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> <other\r>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org> <other\t>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "#Name <old@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old\t@example.org>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Name <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\u000b",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\f",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\r",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "\u0000",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org>\r\nOther <x>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Other <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": "Name <old@example.org>\nOther <x>",
+      "contacts": [
+        "Old <old@example.org>",
+        "Other <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Old <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "output": [
+        "Name <old@example.org>",
+        "Name <old@example.org>",
+        "Old <new@example.org>",
+        "Old <>",
+        "Old < >",
+        "Other <x>",
+        "Old <other>",
+        "Old <old\t@example.org>"
+      ],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": [255, 32, 60, 111, 108, 100, 62],
+      "contacts": ["Old <old>"],
+      "output": [[255, 32, 60, 111, 108, 100, 62]],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": [255, 60, 111, 108, 100, 62],
+      "contacts": ["Old <old>"],
+      "output": [[255, 32, 60, 111, 108, 100, 62]],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": [78, 97, 109, 101, 255, 32, 60, 111, 108, 100, 62],
+      "contacts": ["Old <old>"],
+      "output": [[78, 97, 109, 101, 255, 32, 60, 111, 108, 100, 62]],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": [255],
+      "contacts": ["Old <old>"],
+      "output": ["Old <old>"],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": [194, 32, 60, 111, 108, 100, 62],
+      "contacts": ["Old <old>"],
+      "output": [[194, 32, 60, 111, 108, 100, 62]],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": [
+        78, 97, 109, 101, 32, 60, 110, 101, 119, 62, 32, 255, 32, 60, 111, 108,
+        100, 62
+      ],
+      "contacts": [[255, 32, 60, 111, 108, 100, 62], "Other <old>"],
+      "output": ["Name <new>", "Other <old>"],
+      "status": 0,
+      "stderr": ""
+    },
+    {
+      "source": [255, 10, 78, 97, 109, 101, 32, 60, 111, 108, 100, 62, 10],
+      "contacts": ["Old <old>"],
+      "output": ["Name <old>"],
+      "status": 0,
+      "stderr": ""
+    }
+  ]
+}
