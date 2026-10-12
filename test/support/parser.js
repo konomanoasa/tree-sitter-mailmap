@@ -3,6 +3,10 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { after, before } from "node:test";
 import { createTreeSitter, grammars, root } from "../../scripts/tree-sitter.js";
+import { parseCst } from "./cst.js";
+
+const commandTimeoutMs = 30_000;
+const commandMaxBufferBytes = 64 * 1024 * 1024;
 
 const [{ name: language }] = grammars;
 
@@ -22,8 +26,8 @@ after(() => runner?.close());
 function run(args) {
   const result = runner.run(args, {
     encoding: "utf8",
-    timeout: 30000,
-    maxBuffer: 64 * 1024 * 1024,
+    timeout: commandTimeoutMs,
+    maxBuffer: commandMaxBufferBytes,
   });
   assert.ifError(result.error);
   assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -82,74 +86,26 @@ function parse(source, edits = []) {
         ]
       : []),
   ]);
-  const bytes = applyEdits(source, edits);
-  const starts = [0];
-  for (const [offset, value] of bytes.entries())
-    if (value === 10) starts.push(offset + 1);
-  const nodes = [],
-    ancestors = [];
-  for (const line of text.split("\n")) {
-    const location =
-      /^([0-9]+):([0-9]+)( +)- ([0-9]+):([0-9]+)( +)(([a-z_]+): )?([a-z_]+|ERROR|MISSING|"[^"]*")/.exec(
-        line,
-      );
-    if (!location) continue;
-    const width = location[1].length + location[2].length + location[3].length;
-    const endWidth = location[4].length + 1 + location[5].length;
-    const depth = (location[6].length - Math.max(width - endWidth, 0) - 3) / 2;
-    assert.ok(Number.isInteger(depth) && depth >= 0, line);
-    ancestors.length = depth;
-    nodes.push({
-      kind: location[9].startsWith('"') ? JSON.parse(location[9]) : location[9],
-      field: location[8] ?? null,
-      start: starts[Number(location[1])] + Number(location[2]),
-      end: starts[Number(location[4])] + Number(location[5]),
-      parent: ancestors.at(-1) ?? null,
-    });
-    ancestors.push(nodes.length - 1);
+  return parseCst(text, applyEdits(source, edits));
+}
+
+function assertIncrementalEqualsFresh(initial, edits, source) {
+  try {
+    const incremental = parse(initial, edits);
+    assert.deepEqual(incremental, parse(source));
+    return incremental;
+  } catch (error) {
+    if (error instanceof Error)
+      error.message += `\n${JSON.stringify({ initial, edits, source })}`;
+    throw error;
   }
-  assert.equal(nodes[0]?.kind, "document", text);
-  assert.equal(nodes[0].end, bytes.length, text);
-  assert.ok(
-    !nodes.some(({ kind }) => kind === "ERROR" || kind === "MISSING"),
-    text,
-  );
-  return nodes;
 }
 
-function issues(nodes) {
-  return nodes.flatMap((node, index) => {
-    if (node.kind !== "syntax_issue") return [];
-    const outcome = nodes[index + 1],
-      reason = nodes[index + 2];
-    assert.equal(outcome.parent, index);
-    assert.equal(reason.parent, index + 1);
-    assert.deepEqual(
-      [outcome.start, outcome.end, reason.start, reason.end],
-      [node.start, node.end, node.start, node.end],
-    );
-    return [[outcome.kind, reason.kind, node.start, node.end]];
-  });
+function assertEditHistory({ source, edits }) {
+  for (let count = 1; count <= edits.length; count++) {
+    const history = edits.slice(0, count);
+    assertIncrementalEqualsFresh(source, history, applyEdits(source, history));
+  }
 }
 
-function owners(nodes) {
-  return nodes
-    .filter(({ kind }) => kind === "syntax_issue")
-    .map(({ parent }) => nodes[parent].kind);
-}
-
-function leaves(source, nodes) {
-  const parents = new Set(nodes.map(({ parent }) => parent));
-  return nodes.flatMap((node, index) =>
-    parents.has(index)
-      ? []
-      : [
-          [
-            node.kind,
-            Buffer.from(source).subarray(node.start, node.end).toString(),
-          ],
-        ],
-  );
-}
-
-export { applyEdits, issues, leaves, owners, parse };
+export { applyEdits, assertEditHistory, assertIncrementalEqualsFresh, parse };

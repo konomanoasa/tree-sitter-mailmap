@@ -7,11 +7,6 @@
 [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for
 Git mailmap files 2.55.0.
 
-## Syntax Issues
-
-The parser detects syntax issues, including missing syntax, while preserving the surrounding structure.
-These issues are represented as `syntax_issue` nodes.
-
 ## Installation
 
 ```sh
@@ -31,6 +26,10 @@ npm test
 ## Specification
 
 [Git 2.55.0 gitmailmap manual](https://git-scm.com/docs/gitmailmap/2.55.0)
+
+## Used By
+
+[gitfile-ts-mode](https://github.com/konomanoasa/gitfile-ts-mode): Emacs major mode.
 
 ## License
 

@@ -5,4 +5,4 @@
 **/src/parser.c linguist-generated=true
 **/src/tree_sitter/*.h linguist-generated=true
 
-test/corpus/**/*.txt whitespace=-blank-at-eol
+test/corpus/**/*.txt -text whitespace=-blank-at-eol,-space-before-tab

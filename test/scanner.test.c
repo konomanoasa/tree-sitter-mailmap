@@ -81,6 +81,45 @@ init_mock_lexer(struct MockLexer *mock, const int32_t *input, size_t length) {
   };
 }
 
+struct TokenCase {
+  enum Token token;
+  size_t start, end, lookahead;
+};
+
+static void assert_restored_tokens(
+  const int32_t *input,
+  size_t length,
+  const struct TokenCase *cases,
+  size_t count
+) {
+  Scanner scanner = {0};
+  for (size_t index = 0; index < count; index++) {
+    const struct TokenCase *expected = &cases[index];
+    bool valid[ERROR_SENTINEL + 1] = {false};
+    valid[expected->token] = true;
+    struct MockLexer mock;
+    init_mock_lexer(&mock, input + expected->start, length - expected->start);
+    assert(
+      tree_sitter_mailmap_external_scanner_scan(&scanner, &mock.lexer, valid)
+    );
+    assert(mock.lexer.result_symbol == expected->token);
+    assert(mock.mark == expected->end - expected->start);
+    assert(mock.offset == expected->lookahead - expected->start);
+    char buffer[TREE_SITTER_SERIALIZATION_BUFFER_SIZE];
+    const unsigned serialized =
+      tree_sitter_mailmap_external_scanner_serialize(&scanner, buffer);
+    Scanner restored = {0};
+    tree_sitter_mailmap_external_scanner_deserialize(
+      &restored,
+      buffer,
+      serialized
+    );
+    scanner = restored;
+  }
+  const Scanner initial = {0};
+  assert(memcmp(&scanner, &initial, sizeof(initial)) == 0);
+}
+
 static void test_internal_lexer_accepts_eof_only_at_input_end(void) {
   const int32_t input[] = {'x', 0, '\n', 0xfeff, -1};
   for (size_t index = 0; index < sizeof(input) / sizeof(input[0]); index += 1) {
@@ -97,6 +136,10 @@ static void test_internal_lexer_accepts_eof_only_at_input_end(void) {
 }
 
 static void test_lifecycle_and_serialization_round_trip(void) {
+  enum { GUARD_SIZE = 1, GUARD_BYTE = 0x5a };
+  const uint32_t email_text_end = 70000;
+  const uint32_t email_close_end = email_text_end + 1;
+  const uint32_t line_end = email_close_end + 2;
   Scanner *scanner = tree_sitter_mailmap_external_scanner_create();
   assert(scanner != NULL);
   const Scanner initial = {0};
@@ -107,31 +150,37 @@ static void test_lifecycle_and_serialization_round_trip(void) {
     .index = 1,
     .steps = {
       {.start = 0, .end = 0, .token = SIMPLE_MAPPING_START},
-      {.start = 2, .end = 70000, .token = EMAIL_TEXT},
-      {.start = 70000, .end = 70001, .token = EMAIL_CLOSE},
-      {.start = 70001, .end = 70003, .token = LINE_ENDING}
+      {.start = 2, .end = email_text_end, .token = EMAIL_TEXT},
+      {.start = email_text_end, .end = email_close_end, .token = EMAIL_CLOSE},
+      {.start = email_close_end, .end = line_end, .token = LINE_ENDING}
     },
   };
   *scanner = expected;
-  char buffer[TREE_SITTER_SERIALIZATION_BUFFER_SIZE + 2];
-  memset(buffer, 0x5a, sizeof(buffer));
-  const unsigned length =
-    tree_sitter_mailmap_external_scanner_serialize(scanner, buffer + 1);
-  assert(length == offsetof(Scanner, steps) + 4 * sizeof(Step));
-  assert(buffer[0] == 0x5a && buffer[length + 1] == 0x5a);
+  char buffer[TREE_SITTER_SERIALIZATION_BUFFER_SIZE + 2 * GUARD_SIZE];
+  memset(buffer, GUARD_BYTE, sizeof(buffer));
+  const unsigned length = tree_sitter_mailmap_external_scanner_serialize(
+    scanner,
+    buffer + GUARD_SIZE
+  );
+  assert(length == offsetof(Scanner, steps) + expected.count * sizeof(Step));
+  assert(buffer[0] == GUARD_BYTE && buffer[length + GUARD_SIZE] == GUARD_BYTE);
   tree_sitter_mailmap_external_scanner_deserialize(scanner, NULL, 0);
   assert(memcmp(scanner, &initial, sizeof(initial)) == 0);
-  tree_sitter_mailmap_external_scanner_deserialize(scanner, buffer + 1, length);
+  tree_sitter_mailmap_external_scanner_deserialize(
+    scanner,
+    buffer + GUARD_SIZE,
+    length
+  );
   assert(memcmp(scanner, &expected, sizeof(expected)) == 0);
   tree_sitter_mailmap_external_scanner_deserialize(
     scanner,
-    buffer + 1,
+    buffer + GUARD_SIZE,
     length - 1
   );
   assert(memcmp(scanner, &initial, sizeof(initial)) == 0);
   tree_sitter_mailmap_external_scanner_deserialize(
     scanner,
-    buffer + 1,
+    buffer + GUARD_SIZE,
     length + sizeof(Step)
   );
   assert(memcmp(scanner, &initial, sizeof(initial)) == 0);
@@ -147,7 +196,7 @@ static void test_failed_and_recovery_scans_preserve_state(void) {
     Scanner scanner = {0};
     const Scanner expected = scanner;
     struct MockLexer mock;
-    init_mock_lexer(&mock, input, 5);
+    init_mock_lexer(&mock, input, sizeof(input) / sizeof(input[0]));
     assert(
       !tree_sitter_mailmap_external_scanner_scan(&scanner, &mock.lexer, valid)
     );
@@ -155,47 +204,9 @@ static void test_failed_and_recovery_scans_preserve_state(void) {
   }
 }
 
-struct Expectation {
-  enum Token token;
-  size_t start, end, lookahead;
-};
-
-static void expect_tokens(
-  const int32_t *input,
-  size_t length,
-  const struct Expectation *cases,
-  size_t count
-) {
-  Scanner scanner = {0};
-  for (size_t i = 0; i < count; i++) {
-    bool valid[ERROR_SENTINEL + 1] = {false};
-    valid[cases[i].token] = true;
-    struct MockLexer mock;
-    init_mock_lexer(&mock, input + cases[i].start, length - cases[i].start);
-    assert(
-      tree_sitter_mailmap_external_scanner_scan(&scanner, &mock.lexer, valid)
-    );
-    assert(mock.lexer.result_symbol == cases[i].token);
-    assert(mock.mark == cases[i].end - cases[i].start);
-    assert(mock.offset == cases[i].lookahead - cases[i].start);
-    char buffer[TREE_SITTER_SERIALIZATION_BUFFER_SIZE];
-    unsigned serialized =
-      tree_sitter_mailmap_external_scanner_serialize(&scanner, buffer);
-    Scanner restored = {0};
-    tree_sitter_mailmap_external_scanner_deserialize(
-      &restored,
-      buffer,
-      serialized
-    );
-    scanner = restored;
-  }
-  const Scanner initial = {0};
-  assert(memcmp(&scanner, &initial, sizeof(initial)) == 0);
-}
-
 static void test_restored_tokens_preserve_ranges_and_finish_at_eof(void) {
   const int32_t input[] = {'N', ' ', '<', 'a', '>'};
-  const struct Expectation cases[] = {
+  const struct TokenCase cases[] = {
     {LINE_START, 0, 0, 5},
     {SIMPLE_MAPPING_START, 0, 0, 0},
     {NAME_START, 0, 0, 0},
@@ -207,12 +218,17 @@ static void test_restored_tokens_preserve_ranges_and_finish_at_eof(void) {
     {EMAIL_CLOSE, 4, 5, 5},
     {END_OF_FILE, 5, 5, 5},
   };
-  expect_tokens(input, 5, cases, sizeof(cases) / sizeof(cases[0]));
+  assert_restored_tokens(
+    input,
+    sizeof(input) / sizeof(input[0]),
+    cases,
+    sizeof(cases) / sizeof(cases[0])
+  );
 }
 
 static void test_text_runs_look_ahead_over_the_opposite_run(void) {
   const int32_t input[] = {'a', -1, -1, 'b', 'c', -1, '\n'};
-  const struct Expectation cases[] = {
+  const struct TokenCase cases[] = {
     {LINE_START, 0, 0, 6},
     {SIMPLE_MAPPING_START, 0, 0, 0},
     {NAME_START, 0, 0, 0},
@@ -224,7 +240,12 @@ static void test_text_runs_look_ahead_over_the_opposite_run(void) {
     {MISSING_COMMIT_EMAIL, 6, 6, 6},
     {LINE_ENDING, 6, 7, 7},
   };
-  expect_tokens(input, 7, cases, sizeof(cases) / sizeof(cases[0]));
+  assert_restored_tokens(
+    input,
+    sizeof(input) / sizeof(input[0]),
+    cases,
+    sizeof(cases) / sizeof(cases[0])
+  );
 }
 
 static void test_bounded_line_description_keeps_every_step(void) {

@@ -2,8 +2,8 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
-    "types": ["node", "tree-sitter-cli/dsl"],
+    "module": "nodenext",
     "noImplicitAny": false,
-    "module": "nodenext"
+    "types": ["node", "tree-sitter-cli/dsl"]
   }
 }

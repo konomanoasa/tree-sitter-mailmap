@@ -28,9 +28,8 @@
     "test": "npm run tree-sitter -- test-corpus --rebuild && node --test --test-concurrency=1 \"test/*.test.js\"",
     "test:fuzz": "node --test --test-name-pattern=\"fixed-seed generated histories\" test/incremental.test.js",
     "test:fuzz:corpus": "npm run tree-sitter -- fuzz-all --iterations 100 --edits 5",
-    "test:git": "node scripts/check-git.js",
     "test:highlights": "node --test test/highlight.test.js",
-    "test:incremental": "node --test test/incremental.test.js",
+    "test:incremental": "node --test --test-concurrency=1 test/cst.test.js test/parser.test.js test/incremental.test.js",
     "test:sanitize": "node scripts/check-c.js --sanitize",
     "test:scanner": "node scripts/check-c.js",
     "tree-sitter": "node scripts/tree-sitter.js"

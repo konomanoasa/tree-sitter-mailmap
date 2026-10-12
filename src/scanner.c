@@ -47,7 +47,7 @@ typedef struct {
 // line start 1, ending 1.
 enum { STEPS = 26 };
 
-// Positions are character offsets from the physical line start.
+// Positions are line-relative character offsets.
 typedef struct {
   uint32_t position, count, index;
   Step steps[STEPS];
@@ -62,13 +62,13 @@ static bool space(int32_t c) {
 
 static bool textual(uint32_t token) {
   switch (token) {
-  case NAME_TEXT:
-  case EMAIL_TEXT:
-  case COMMENT_TEXT:
-  case IGNORED_TEXT:
-    return true;
-  default:
-    return false;
+    case NAME_TEXT:
+    case EMAIL_TEXT:
+    case COMMENT_TEXT:
+    case IGNORED_TEXT:
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -94,8 +94,7 @@ static void span(
   uint32_t from,
   uint32_t to
 ) {
-  if (from >= to)
-    return;
+  if (from >= to) return;
   push(s, start, from, from);
   push(s, text, from, to);
   push(s, end, to, to);
@@ -105,14 +104,10 @@ static void
 email(Scanner *s, uint32_t open, uint32_t close, uint32_t end, bool first) {
   const uint32_t text_end = close == NONE ? end : close;
   push(s, EMAIL_OPEN, open, open + 1);
-  if (open + 1 < text_end)
-    push(s, EMAIL_TEXT, open + 1, text_end);
-  else if (first)
-    push(s, MISSING_EMAIL_TEXT, text_end, text_end);
-  if (close == NONE)
-    push(s, MISSING_EMAIL_CLOSE, text_end, text_end);
-  else
-    push(s, EMAIL_CLOSE, close, close + 1);
+  if (open + 1 < text_end) push(s, EMAIL_TEXT, open + 1, text_end);
+  else if (first) push(s, MISSING_EMAIL_TEXT, text_end, text_end);
+  if (close == NONE) push(s, MISSING_EMAIL_CLOSE, text_end, text_end);
+  else push(s, EMAIL_CLOSE, close, close + 1);
 }
 
 static void describe(Scanner *s, TSLexer *lexer) {
@@ -122,27 +117,26 @@ static void describe(Scanner *s, TSLexer *lexer) {
   uint32_t word_start[3] = {NONE, NONE, NONE};
   uint32_t word_end[3] = {0, 0, 0};
   uint32_t comment = NONE, nul = NONE;
-  unsigned region = 0;
+  unsigned emails = 0;
+  bool inside = false;
   int32_t last = 0;
   lexer->mark_end(lexer);
   while (!lexer->eof(lexer) && lexer->lookahead != '\n') {
     const int32_t c = lexer->lookahead;
-    if (nul == NONE && c == 0)
-      nul = s->position;
+    if (nul == NONE && c == 0) nul = s->position;
     if (nul == NONE && comment == NONE) {
-      const unsigned word = region / 2;
-      if (c == '#') {
-        comment = s->position;
-      } else if (region < 4 && region % 2 == 0 && c == '<') {
-        open[word] = s->position;
-        region++;
-      } else if (region % 2 == 1 && c == '>') {
-        close[word] = s->position;
-        region++;
-      } else if (region % 2 == 0 && !space(c)) {
-        if (word_start[word] == NONE)
-          word_start[word] = s->position;
-        word_end[word] = s->position + 1;
+      if (c == '#') comment = s->position;
+      else if (inside) {
+        if (c == '>') {
+          close[emails++] = s->position;
+          inside = false;
+        }
+      } else if (c == '<' && emails < 2) {
+        open[emails] = s->position;
+        inside = true;
+      } else if (!space(c)) {
+        if (word_start[emails] == NONE) word_start[emails] = s->position;
+        word_end[emails] = s->position + 1;
       }
     }
     last = c;
@@ -152,7 +146,7 @@ static void describe(Scanner *s, TSLexer *lexer) {
   const uint32_t content_end = s->position - (last == '\r' && !eof ? 1 : 0);
   const uint32_t line_end = s->position + (eof ? 0 : 1);
   const uint32_t comment_end = nul < content_end ? nul : content_end;
-  const uint32_t end = comment < comment_end ? comment : comment_end;
+  const uint32_t mapping_end = comment < comment_end ? comment : comment_end;
   const bool has_name = word_start[0] < word_end[0];
   const bool has_email = open[0] != NONE;
   if (has_name || has_email) {
@@ -173,12 +167,12 @@ static void describe(Scanner *s, TSLexer *lexer) {
         word_end[word]
       );
       if (open[word] == NONE) {
-        push(s, MISSING_COMMIT_EMAIL, end, end);
+        push(s, MISSING_COMMIT_EMAIL, mapping_end, mapping_end);
         continue;
       }
       if (word_start[word] < word_end[word] && word_end[word] == open[word])
         push(s, MISSING_NAME_SEPARATOR, open[word], open[word]);
-      email(s, open[word], close[word], end, word == 0);
+      email(s, open[word], close[word], mapping_end, word == 0);
     }
     span(
       s,
@@ -199,25 +193,22 @@ static void describe(Scanner *s, TSLexer *lexer) {
     push(s, COMMENT_END, comment_end, comment_end);
   }
   span(s, IGNORED_START, IGNORED_TEXT, IGNORED_END, nul, content_end);
-  if (line_end > content_end)
-    push(s, LINE_ENDING, content_end, line_end);
-  else
-    push(s, END_OF_FILE, content_end, content_end);
+  if (line_end > content_end) push(s, LINE_ENDING, content_end, line_end);
+  else push(s, END_OF_FILE, content_end, content_end);
   s->position = 0;
 }
 
 static uint32_t outcome(TSLexer *lexer, uint32_t token) {
-  if (!lexer->eof(lexer))
-    return token;
+  if (!lexer->eof(lexer)) return token;
   switch (token) {
-  case MISSING_EMAIL_TEXT:
-    return INCOMPLETE_EMAIL_TEXT;
-  case MISSING_EMAIL_CLOSE:
-    return INCOMPLETE_EMAIL_CLOSE;
-  case MISSING_COMMIT_EMAIL:
-    return INCOMPLETE_COMMIT_EMAIL;
-  default:
-    return token;
+    case MISSING_EMAIL_TEXT:
+      return INCOMPLETE_EMAIL_TEXT;
+    case MISSING_EMAIL_CLOSE:
+      return INCOMPLETE_EMAIL_CLOSE;
+    case MISSING_COMMIT_EMAIL:
+      return INCOMPLETE_COMMIT_EMAIL;
+    default:
+      return token;
   }
 }
 
@@ -225,8 +216,7 @@ static bool
 text(Scanner *s, TSLexer *lexer, const bool *valid, const Step *step) {
   const bool invalid = lexer->lookahead == -1;
   const uint32_t token = invalid ? INVALID_ENCODING : step->token;
-  if (!valid[token])
-    return false;
+  if (!valid[token]) return false;
   do {
     advance(s, lexer);
   } while (s->position < step->end && (lexer->lookahead == -1) == invalid);
@@ -238,8 +228,7 @@ text(Scanner *s, TSLexer *lexer, const bool *valid, const Step *step) {
     ahead++
   )
     lexer->advance(lexer, false);
-  if (s->position == step->end)
-    s->index++;
+  if (s->position == step->end) s->index++;
   return accept(lexer, token);
 }
 
@@ -269,11 +258,9 @@ void tree_sitter_mailmap_external_scanner_deserialize(
 ) {
   Scanner *s = payload;
   memset(s, 0, sizeof(Scanner));
-  if (length < offsetof(Scanner, steps) || length > sizeof(Scanner))
-    return;
+  if (length < offsetof(Scanner, steps) || length > sizeof(Scanner)) return;
   memcpy(s, buffer, length);
-  if (length != serialized_length(s))
-    memset(s, 0, sizeof(Scanner));
+  if (length != serialized_length(s)) memset(s, 0, sizeof(Scanner));
 }
 
 bool tree_sitter_mailmap_external_scanner_scan(
@@ -282,33 +269,25 @@ bool tree_sitter_mailmap_external_scanner_scan(
   const bool *valid
 ) {
   Scanner *s = payload;
-  if (valid[ERROR_SENTINEL])
-    return false;
+  if (valid[ERROR_SENTINEL]) return false;
   if (s->count == 0) {
-    if (lexer->eof(lexer) || !valid[LINE_START])
-      return false;
+    if (lexer->eof(lexer) || !valid[LINE_START]) return false;
     describe(s, lexer);
     return accept(lexer, LINE_START);
   }
   lexer->mark_end(lexer);
   const Step *step = &s->steps[s->index];
   if (s->position < step->start) {
-    if (!valid[LAYOUT])
-      return false;
-    while (s->position < step->start)
-      advance(s, lexer);
+    if (!valid[LAYOUT]) return false;
+    while (s->position < step->start) advance(s, lexer);
     lexer->mark_end(lexer);
     return accept(lexer, LAYOUT);
   }
-  if (textual(step->token))
-    return text(s, lexer, valid, step);
+  if (textual(step->token)) return text(s, lexer, valid, step);
   const uint32_t token = outcome(lexer, step->token);
-  if (!valid[token])
-    return false;
-  while (s->position < step->end)
-    advance(s, lexer);
+  if (!valid[token]) return false;
+  while (s->position < step->end) advance(s, lexer);
   lexer->mark_end(lexer);
-  if (++s->index == s->count)
-    *s = (Scanner){0};
+  if (++s->index == s->count) *s = (Scanner){0};
   return accept(lexer, token);
 }

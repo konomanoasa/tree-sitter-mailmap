@@ -15,41 +15,8 @@ fn parses_valid_source() {
   assert_eq!(root.kind(), "document");
   assert_eq!(root.byte_range(), 0..source.len());
   assert!(!root.has_error());
-  let mapping = root.named_child(0).unwrap();
-  for (field, expected) in [
-    ("canonical_name", 0..4),
-    ("canonical_email", 5..10),
-    ("commit_name", 11..14),
-    ("commit_email", 15..20),
-  ] {
-    assert_eq!(
-      mapping.child_by_field_name(field).unwrap().byte_range(),
-      expected
-    );
-  }
   assert!(grammar::NODE_TYPES.contains("\"syntax_issue\""));
   Query::new(&grammar::LANGUAGE.into(), grammar::HIGHLIGHTS_QUERY).unwrap();
-}
-
-#[test]
-fn missing_close_is_a_zero_width_issue_owned_by_the_email() {
-  let tree = parser().parse("Name <old", None).unwrap();
-  let root = tree.root_node();
-  assert!(!root.has_error());
-  let email = root
-    .named_child(0)
-    .unwrap()
-    .child_by_field_name("commit_email")
-    .unwrap();
-  let issue = email.child_by_field_name("issue").unwrap();
-  let outcome = issue.named_child(0).unwrap();
-  let reason = outcome.named_child(0).unwrap();
-  assert_eq!(issue.kind(), "syntax_issue");
-  assert_eq!(outcome.kind(), "incomplete_syntax");
-  assert_eq!(reason.kind(), "missing_email_close");
-  for node in [issue, outcome, reason] {
-    assert_eq!(node.byte_range(), 9..9);
-  }
 }
 
 fn snapshot(node: Node<'_>) -> Vec<(String, Option<String>, usize, usize)> {

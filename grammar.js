@@ -1,10 +1,11 @@
+const missingKinds = (name) => [
+  [`missing_${name}`, "invalid_syntax", `missing_${name}`],
+  [`incomplete_${name}`, "incomplete_syntax", `missing_${name}`],
+];
 const issueKinds = [
   ["invalid_encoding", "invalid_syntax", "invalid_encoding"],
   ["missing_name_separator", "invalid_syntax", "missing_name_separator"],
-  ...["email_text", "email_close", "commit_email"].flatMap((name) => [
-    [`missing_${name}`, "invalid_syntax", `missing_${name}`],
-    [`incomplete_${name}`, "incomplete_syntax", `missing_${name}`],
-  ]),
+  ...["email_text", "email_close", "commit_email"].flatMap(missingKinds),
 ];
 const issueRules = Object.fromEntries(
   issueKinds.flatMap(([token, outcome, reason]) => [

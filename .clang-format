@@ -3,7 +3,9 @@ AlignOperands: DontAlign
 AlignEscapedNewlines: DontAlign
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
 BasedOnStyle: LLVM
 BinPackArguments: false
 BinPackLongBracedList: false
@@ -12,9 +14,15 @@ BreakAfterOpenBracketBracedList: true
 BreakAfterOpenBracketFunction: true
 BreakAfterOpenBracketIf: true
 BreakAfterOpenBracketLoop: true
-BreakBinaryOperations: OnePerLine
+BreakBinaryOperations: RespectPrecedence
 BreakBeforeCloseBracketBracedList: true
 BreakBeforeCloseBracketFunction: true
 BreakBeforeCloseBracketIf: true
 BreakBeforeCloseBracketLoop: true
+BreakStringLiterals: false
 ContinuationIndentWidth: 2
+IndentCaseLabels: true
+LineEnding: LF
+ReflowComments: IndentOnly
+SortIncludes:
+  Enabled: false
