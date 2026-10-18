@@ -104,7 +104,7 @@ export default grammar({
     blank_line: ($) =>
       seq($._blank_start, optional($.ignored_suffix), $._ending),
     _ending: ($) => choice($.line_ending, $._eof),
-    // Prevent Tree-sitter 0.27.0 from accepting EOF before the input ends.
+    // Prevent premature EOF acceptance in Tree-sitter 0.27.0.
     _unmatchable: () => token(seq(/[\s\S]/, /[^\s\S]/)),
     ...issueRules,
   },

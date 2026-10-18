@@ -30,7 +30,7 @@ path = "test/bindings.test.rs"
 tree-sitter-language = "0.1.8"
 
 [dev-dependencies]
-tree-sitter = "0.27.0"
+tree-sitter = "0.27.1"
 
 [build-dependencies]
 cc = "1.4"

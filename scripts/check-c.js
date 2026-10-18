@@ -183,7 +183,7 @@ function checkDiagnostics(clang, clangd, directory) {
         "-I",
         variant.includeDirectory,
         ...warningArguments,
-        // Clangd checks headers and included helpers without all their callers.
+        // Standalone checks omit some callers.
         ...(source === variant.source
           ? scannerDiagnosticArguments
           : ["-Wno-unused-function", ...variant.contractArguments]),
