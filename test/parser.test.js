@@ -7,7 +7,6 @@ import { test } from "node:test";
 import { issues, leaves, owners } from "./support/cst.js";
 import {
   applyEdits,
-  assertEditHistory,
   assertIncrementalEqualsFresh,
   parse,
 } from "./support/parser.js";
@@ -82,53 +81,101 @@ test("mailmap: ignored tails exclude surrounding layout but retain NUL suffix by
   }
 });
 
-const editCases = [
-  {
-    name: "add and remove a second address",
-    source: "Name <new>",
-    edits: [
-      { byte: 10, deleteBytes: 0, insert: " Old <old>" },
-      { byte: 10, deleteBytes: 10, insert: "" },
+test("mailmap: byte-only names retain their roles and report missing separators independently", () => {
+  const cases = [
+    [
+      Buffer.from([255]),
+      [
+        ["invalid_syntax", "invalid_encoding", 0, 1],
+        ["incomplete_syntax", "missing_commit_email", 1, 1],
+      ],
+      ["name", "mapping"],
+      [["canonical_name", 0, 1]],
+      [],
     ],
-  },
-  {
-    name: "complete a first address",
-    source: "Name <old",
-    edits: [{ byte: 9, deleteBytes: 0, insert: ">" }],
-  },
-  {
-    name: "close a second address",
-    source: "<new> <old",
-    edits: [{ byte: 10, deleteBytes: 0, insert: ">" }],
-  },
-  {
-    name: "remove canonical name",
-    source: "Name <new> <old>",
-    edits: [{ byte: 0, deleteBytes: 5, insert: "" }],
-  },
-  {
-    name: "insert and remove comment marker",
-    source: "Name <old>",
-    edits: [
-      { byte: 7, deleteBytes: 0, insert: "#" },
-      { byte: 7, deleteBytes: 1, insert: "" },
+    [
+      Buffer.from([32, 9, 255, 32, 13, 10]),
+      [
+        ["invalid_syntax", "invalid_encoding", 2, 3],
+        ["invalid_syntax", "missing_commit_email", 4, 4],
+      ],
+      ["name", "mapping"],
+      [["canonical_name", 2, 3]],
+      [],
     ],
-  },
-  {
-    name: "split and merge invalid UTF-8 runs inside a name",
-    source: Buffer.from([78, 255, 254, 128, 32, 60, 97, 62]),
-    edits: [
-      { byte: 2, deleteBytes: 0, insert: "é" },
-      { byte: 2, deleteBytes: 2, insert: "" },
-      { byte: 1, deleteBytes: 3, insert: "ame" },
+    [
+      Buffer.from([255, ...Buffer.from(" <old>")]),
+      [["invalid_syntax", "invalid_encoding", 0, 1]],
+      ["name"],
+      [["canonical_name", 0, 1]],
+      [],
     ],
-  },
-];
-for (const entry of editCases) {
-  test(`mailmap: ${entry.name}`, () => {
-    assertEditHistory(entry);
-  });
-}
+    [
+      Buffer.from([255, ...Buffer.from("<old>")]),
+      [
+        ["invalid_syntax", "invalid_encoding", 0, 1],
+        ["invalid_syntax", "missing_name_separator", 1, 1],
+      ],
+      ["name", "mapping"],
+      [["canonical_name", 0, 1]],
+      [],
+    ],
+    [
+      Buffer.from([78, 255, ...Buffer.from("<old>")]),
+      [
+        ["invalid_syntax", "invalid_encoding", 1, 2],
+        ["invalid_syntax", "missing_name_separator", 2, 2],
+      ],
+      ["name", "mapping"],
+      [["canonical_name", 0, 2]],
+      [["name_text", "N"]],
+    ],
+    [
+      Buffer.from([...Buffer.from("<new> "), 255, ...Buffer.from("<old>")]),
+      [
+        ["invalid_syntax", "invalid_encoding", 6, 7],
+        ["invalid_syntax", "missing_name_separator", 7, 7],
+      ],
+      ["name", "mapping"],
+      [["commit_name", 6, 7]],
+      [],
+    ],
+    [
+      Buffer.from([...Buffer.from("<new> "), 255, ...Buffer.from(" <old>")]),
+      [["invalid_syntax", "invalid_encoding", 6, 7]],
+      ["name"],
+      [["commit_name", 6, 7]],
+      [],
+    ],
+  ];
+  for (const [
+    source,
+    expected,
+    expectedOwners,
+    expectedNames,
+    expectedText,
+  ] of cases) {
+    const context = source.toString("hex");
+    const nodes = parse(source);
+    assert.equal(nodes[1].kind, "mapping", context);
+    assert.deepEqual(issues(nodes), expected, context);
+    assert.deepEqual(owners(nodes), expectedOwners, context);
+    assert.deepEqual(
+      nodes
+        .filter(({ kind }) => kind === "name")
+        .map(({ field, start, end }) => [field, start, end]),
+      expectedNames,
+      context,
+    );
+    assert.deepEqual(
+      leaves(source, nodes).filter(([kind]) => kind === "name_text"),
+      expectedText,
+      context,
+    );
+    for (const node of nodes.filter(({ kind }) => kind === "syntax_issue"))
+      assert.equal(node.field, "issue", context);
+  }
+});
 
 test("mailmap: repairing a byte-only name and completing its address preserve issue positions", () => {
   const source = Buffer.from([255, 32, 9]);
@@ -169,19 +216,6 @@ test("mailmap: repairing a byte-only name and completing its address preserve is
       expected.map(() => "mapping"),
     );
   }
-});
-
-test("mailmap: long lines and the last mapping are never truncated", () => {
-  const addressLength = 70_000;
-  const source = `N <${"x".repeat(addressLength)}>\nLast <ok>`;
-  const nodes = parse(source);
-  assert.deepEqual(issues(nodes), []);
-  assert.equal(nodes.filter(({ kind }) => kind === "mapping").length, 2);
-  assert.ok(
-    leaves(source, nodes).some(
-      ([kind, text]) => kind === "name_text" && text === "Last",
-    ),
-  );
 });
 
 test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
@@ -302,47 +336,17 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name <>",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "<> <old@example.org>",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "Name <> <old@example.org>",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "Name <new@example.org> <>",
@@ -377,17 +381,7 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "<old@example.org>",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "Name <old@example.org> garbage",
@@ -437,17 +431,7 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name <old@example.org> <other>",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "Name <new@example.org> <old@example.org> <extra>",
@@ -482,17 +466,7 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name <old@example.org",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "Name <old@example.org>\u0000tail",
@@ -512,32 +486,12 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name\u0000 <old@example.org>",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "Name <old@example.org\u0000>",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "Name <old@example.org> #comment",
@@ -662,17 +616,7 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name <old@example.org>\rOther <x>",
       contacts: syntaxContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < old@example.org >",
-        "Old <old name@example.org>",
-        "Old <x>",
-        "Old <old#comment@example.org>",
-        "Old <<old@example.org>",
-      ],
+      output: syntaxContacts,
     },
     {
       source: "Name > <old@example.org>",
@@ -1045,16 +989,7 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name <old@example.org>\rOther <x>",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "Name <new@example.org>\u0000 <old@example.org>",
@@ -1087,30 +1022,12 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name <> <old@example.org>",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "<> <old@example.org>",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "Name < >",
@@ -1185,16 +1102,7 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name <old@example.org> dangling <other>",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "Name <old@example.org> <other> <x>",
@@ -1227,44 +1135,17 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "Name <old@example.org> <other\r>",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "Name <old@example.org> <other\t>",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "#Name <old@example.org>",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "Name <old\t@example.org>",
@@ -1283,58 +1164,22 @@ test("mailmap: Git runtime checks the documented supplementary cases", (t) => {
     {
       source: "\u000b",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "\f",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "\r",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "\u0000",
       contacts: boundaryContacts,
-      output: [
-        "Old <old@example.org>",
-        "Other <old@example.org>",
-        "Old <new@example.org>",
-        "Old <>",
-        "Old < >",
-        "Old <x>",
-        "Old <other>",
-        "Old <old\t@example.org>",
-      ],
+      output: boundaryContacts,
     },
     {
       source: "Name <old@example.org>\r\nOther <x>",

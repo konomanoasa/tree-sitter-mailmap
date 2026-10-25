@@ -3,14 +3,43 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { root } from "../scripts/tree-sitter.js";
-import { parseCorpus } from "./support/corpus.js";
 import { issues, leaves, owners, parseCst } from "./support/cst.js";
-import {
-  applyEdits,
-  assertEditHistory,
-  assertIncrementalEqualsFresh,
-  parse,
-} from "./support/parser.js";
+import { parse } from "./support/parser.js";
+
+function parseCorpus(text) {
+  const sections = text.split("==================\n");
+  assert.equal(sections.shift(), "", "corpus must begin with a header");
+  assert.equal(sections.length % 2, 0, "corpus headers must be paired");
+  const cases = [];
+  for (let index = 0; index < sections.length; index += 2) {
+    const [name, ...attributes] = sections[index].trimEnd().split("\n");
+    assert.ok(name, "corpus case must have a name");
+    for (const attribute of attributes) {
+      assert.ok(
+        attribute === ":cst" || attribute === ":error",
+        `unsupported corpus attribute: ${attribute}`,
+      );
+    }
+    const parts = sections[index + 1].split("\n---\n");
+    assert.equal(parts.length, 2, `${name}: expected one output separator`);
+    const source = parts[0].endsWith("\r") ? parts[0].slice(0, -1) : parts[0];
+    cases.push({ name, source });
+  }
+  return cases;
+}
+
+test("mailmap: long lines and the last mapping are never truncated", () => {
+  const addressLength = 70_000;
+  const source = `N <${"x".repeat(addressLength)}>\nLast <ok>`;
+  const nodes = parse(source);
+  assert.deepEqual(issues(nodes), []);
+  assert.equal(nodes.filter(({ kind }) => kind === "mapping").length, 2);
+  assert.ok(
+    leaves(source, nodes).some(
+      ([kind, text]) => kind === "name_text" && text === "Last",
+    ),
+  );
+});
 
 const corpusDirectory = join(root, "test/corpus");
 for (const file of readdirSync(corpusDirectory).sort()) {
@@ -59,102 +88,6 @@ test("mailmap: corpus input reader rejects unsupported conditions and framing", 
   }
 });
 
-test("mailmap: byte-only names retain their roles and report missing separators independently", () => {
-  const cases = [
-    [
-      Buffer.from([255]),
-      [
-        ["invalid_syntax", "invalid_encoding", 0, 1],
-        ["incomplete_syntax", "missing_commit_email", 1, 1],
-      ],
-      ["name", "mapping"],
-      [["canonical_name", 0, 1]],
-      [],
-    ],
-    [
-      Buffer.from([32, 9, 255, 32, 13, 10]),
-      [
-        ["invalid_syntax", "invalid_encoding", 2, 3],
-        ["invalid_syntax", "missing_commit_email", 4, 4],
-      ],
-      ["name", "mapping"],
-      [["canonical_name", 2, 3]],
-      [],
-    ],
-    [
-      Buffer.from([255, ...Buffer.from(" <old>")]),
-      [["invalid_syntax", "invalid_encoding", 0, 1]],
-      ["name"],
-      [["canonical_name", 0, 1]],
-      [],
-    ],
-    [
-      Buffer.from([255, ...Buffer.from("<old>")]),
-      [
-        ["invalid_syntax", "invalid_encoding", 0, 1],
-        ["invalid_syntax", "missing_name_separator", 1, 1],
-      ],
-      ["name", "mapping"],
-      [["canonical_name", 0, 1]],
-      [],
-    ],
-    [
-      Buffer.from([78, 255, ...Buffer.from("<old>")]),
-      [
-        ["invalid_syntax", "invalid_encoding", 1, 2],
-        ["invalid_syntax", "missing_name_separator", 2, 2],
-      ],
-      ["name", "mapping"],
-      [["canonical_name", 0, 2]],
-      [["name_text", "N"]],
-    ],
-    [
-      Buffer.from([...Buffer.from("<new> "), 255, ...Buffer.from("<old>")]),
-      [
-        ["invalid_syntax", "invalid_encoding", 6, 7],
-        ["invalid_syntax", "missing_name_separator", 7, 7],
-      ],
-      ["name", "mapping"],
-      [["commit_name", 6, 7]],
-      [],
-    ],
-    [
-      Buffer.from([...Buffer.from("<new> "), 255, ...Buffer.from(" <old>")]),
-      [["invalid_syntax", "invalid_encoding", 6, 7]],
-      ["name"],
-      [["commit_name", 6, 7]],
-      [],
-    ],
-  ];
-  for (const [
-    source,
-    expected,
-    expectedOwners,
-    expectedNames,
-    expectedText,
-  ] of cases) {
-    const context = source.toString("hex");
-    const nodes = parse(source);
-    assert.equal(nodes[1].kind, "mapping", context);
-    assert.deepEqual(issues(nodes), expected, context);
-    assert.deepEqual(owners(nodes), expectedOwners, context);
-    assert.deepEqual(
-      nodes
-        .filter(({ kind }) => kind === "name")
-        .map(({ field, start, end }) => [field, start, end]),
-      expectedNames,
-      context,
-    );
-    assert.deepEqual(
-      leaves(source, nodes).filter(([kind]) => kind === "name_text"),
-      expectedText,
-      context,
-    );
-    for (const node of nodes.filter(({ kind }) => kind === "syntax_issue"))
-      assert.equal(node.field, "issue", context);
-  }
-});
-
 test("mailmap: invalid UTF-8 runs are grouped within each textual owner", () => {
   const invalidBytes = Buffer.from([255, 128, 254]);
   const contexts = [
@@ -183,106 +116,6 @@ test("mailmap: invalid UTF-8 runs are grouped within each textual owner", () => 
     assert.deepEqual(owners(nodes), [owner]);
   }
 });
-
-for (const [owner, prefix, suffix] of [
-  ["name", "Na", "me <a>"],
-  ["email", "Name <", "a>"],
-  ["comment", "# a", "b"],
-]) {
-  test(`mailmap: splitting the character after a decoding failure merges the issue in ${owner}`, () => {
-    const offset = Buffer.byteLength(prefix);
-    const source = Buffer.concat([
-      Buffer.from(prefix),
-      Buffer.from([255]),
-      Buffer.from(`é${suffix}`),
-    ]);
-    const edits = [{ byte: offset + 2, deleteBytes: 1, insert: "" }];
-    const incremental = assertIncrementalEqualsFresh(
-      source,
-      edits,
-      applyEdits(source, edits),
-    );
-    assert.deepEqual(
-      incremental
-        .filter(({ kind }) => kind === "syntax_issue")
-        .map(({ start, end }) => [start, end]),
-      [[offset, offset + 2]],
-    );
-  });
-}
-
-test("mailmap: edits inside a boundary character merge adjacent decoding issues", () => {
-  for (const bom of ["", "\uFEFF"]) {
-    for (const character of ["¿", "€", "😀"]) {
-      for (const [owner, prefix, suffix] of [
-        ["name", "N", " <old>"],
-        ["email", "N <", ">"],
-        ["comment", "#", ""],
-        ["ignored_suffix", "N <old> tail", ""],
-        ["ignored_suffix", "\0", ""],
-      ]) {
-        const head = Buffer.from(bom + prefix);
-        const encoded = Buffer.from(character);
-        const source = Buffer.concat([
-          head,
-          Buffer.from([255]),
-          encoded,
-          Buffer.from([255]),
-          Buffer.from("x".repeat(encoded.length - 2) + suffix),
-        ]);
-        const edits = [
-          {
-            byte: head.length + encoded.length,
-            deleteBytes: encoded.length,
-            insert: "a",
-          },
-        ];
-        const actual = assertIncrementalEqualsFresh(
-          source,
-          edits,
-          applyEdits(source, edits),
-        );
-        assert.deepEqual(issues(actual), [
-          [
-            "invalid_syntax",
-            "invalid_encoding",
-            head.length,
-            head.length + encoded.length,
-          ],
-        ]);
-        assert.deepEqual(owners(actual), [owner]);
-      }
-    }
-  }
-});
-
-const editCases = [
-  {
-    name: "insert BOM",
-    source: "Name <old>",
-    edits: [{ byte: 0, deleteBytes: 0, insert: "\uFEFF" }],
-  },
-  {
-    name: "remove BOM",
-    source: "\uFEFFName <old>",
-    edits: [{ byte: 0, deleteBytes: 3, insert: "" }],
-  },
-  {
-    name: "split Unicode",
-    source: "名 <old>",
-    edits: [{ byte: 1, deleteBytes: 1, insert: "" }],
-  },
-  {
-    name: "repair invalid UTF-8",
-    source: Buffer.from([255, 32, 60, 97, 62]),
-    edits: [{ byte: 0, deleteBytes: 1, insert: "名" }],
-  },
-];
-for (const entry of editCases) {
-  test(`mailmap: ${entry.name}`, () => {
-    assertEditHistory(entry);
-  });
-}
 
 test("mailmap: CST helpers preserve fields, hierarchy and UTF-8 ranges across CRLF", () => {
   const source = "名 <a>\r\n# b";

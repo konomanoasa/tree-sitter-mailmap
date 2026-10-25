@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "npm run tree-sitter -- build-all",
-    "check": "biome check . && tsc --noEmit",
+    "check": "biome check . && tsc",
     "check:queries": "npm run tree-sitter -- check-queries",
     "format": "biome format --write .",
     "generate": "npm run tree-sitter -- generate-all",
@@ -35,7 +35,7 @@
     "tree-sitter": "node scripts/tree-sitter.js"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
+    "@biomejs/biome": "2.6.2",
     "@types/node": "26.6.5",
     "tree-sitter-cli": "0.27.1",
     "typescript": "7.0.2"

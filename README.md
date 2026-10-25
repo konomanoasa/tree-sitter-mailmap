@@ -15,8 +15,6 @@ npm install @konomanoasa/tree-sitter-mailmap
 
 ## Development
 
-Development uses Node.js 24.21.0 or later.
-
 ```sh
 npm install
 npm run build
@@ -29,7 +27,7 @@ npm test
 
 ## Used By
 
-[gitfile-ts-mode](https://github.com/konomanoasa/gitfile-ts-mode): Emacs major mode.
+[gitfile-ts-mode](https://github.com/konomanoasa/gitfile-ts-mode)
 
 ## License
 
