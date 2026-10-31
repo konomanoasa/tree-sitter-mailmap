@@ -211,20 +211,6 @@ static void test_failed_and_recovery_scans_preserve_state(void) {
     );
     assert(memcmp(&scanner, &expected, sizeof(expected)) == 0);
   }
-  const Scanner expected = {
-    .position = 1,
-    .count = 1,
-    .steps = {{.start = 1, .end = 2, .token = NAME_SEPARATOR}},
-  };
-  Scanner scanner = expected;
-  bool valid[ERROR_SENTINEL + 1] = {false};
-  struct MockLexer mock;
-  init_mock_lexer(&mock, input + 1, 4);
-  assert(
-    !tree_sitter_mailmap_external_scanner_scan(&scanner, &mock.lexer, valid)
-  );
-  assert(mock.offset == 0);
-  assert(memcmp(&scanner, &expected, sizeof(expected)) == 0);
 }
 
 static void test_restored_tokens_preserve_ranges_and_finish_at_eof(void) {
@@ -235,7 +221,7 @@ static void test_restored_tokens_preserve_ranges_and_finish_at_eof(void) {
     {NAME_START, 0, 0, 0},
     {NAME_TEXT, 0, 1, 1},
     {NAME_END, 1, 1, 1},
-    {NAME_SEPARATOR, 1, 2, 2},
+    {LAYOUT, 1, 2, 2},
     {EMAIL_OPEN, 2, 3, 3},
     {EMAIL_TEXT, 3, 4, 4},
     {EMAIL_CLOSE, 4, 5, 5},
@@ -249,73 +235,58 @@ static void test_restored_tokens_preserve_ranges_and_finish_at_eof(void) {
   );
 }
 
-static void test_text_stops_before_decoding_failure_without_consuming_it(void) {
-  const int32_t input[] = {'a', -1, -1, 'b'};
-  Scanner scanner = {
-    .count = 1,
-    .steps = {{.start = 0, .end = 4, .token = NAME_TEXT}},
+static void test_text_runs_look_ahead_over_the_opposite_run(void) {
+  const int32_t input[] = {'a', -1, -1, 'b', 'c', -1, '\n'};
+  const struct TokenCase cases[] = {
+    {LINE_START, 0, 0, 6},
+    {SIMPLE_MAPPING_START, 0, 0, 0},
+    {NAME_START, 0, 0, 0},
+    {NAME_TEXT, 0, 1, 3},
+    {INVALID_ENCODING, 1, 3, 5},
+    {NAME_TEXT, 3, 5, 6},
+    {INVALID_ENCODING, 5, 6, 6},
+    {NAME_END, 6, 6, 6},
+    {MISSING_COMMIT_EMAIL, 6, 6, 6},
+    {LINE_ENDING, 6, 7, 7},
   };
-  bool valid[ERROR_SENTINEL + 1] = {false};
-  valid[NAME_TEXT] = true;
-  struct MockLexer mock;
-  init_mock_lexer(&mock, input, sizeof(input) / sizeof(input[0]));
-  assert(
-    tree_sitter_mailmap_external_scanner_scan(&scanner, &mock.lexer, valid)
+  assert_restored_tokens(
+    input,
+    sizeof(input) / sizeof(input[0]),
+    cases,
+    sizeof(cases) / sizeof(cases[0])
   );
-  assert(mock.lexer.result_symbol == NAME_TEXT && mock.mark == 1);
-  assert(scanner.position == 1 && scanner.index == 0);
-  const Scanner expected = scanner;
-  init_mock_lexer(&mock, input + 1, 3);
-  assert(
-    !tree_sitter_mailmap_external_scanner_scan(&scanner, &mock.lexer, valid)
-  );
-  assert(mock.offset == 0);
-  assert(memcmp(&scanner, &expected, sizeof(expected)) == 0);
-}
-
-static void test_null_payload_remains_safe_after_allocation_failure(void) {
-  char buffer[TREE_SITTER_SERIALIZATION_BUFFER_SIZE];
-  assert(tree_sitter_mailmap_external_scanner_serialize(NULL, buffer) == 0);
-  tree_sitter_mailmap_external_scanner_deserialize(NULL, NULL, 0);
-  bool valid[ERROR_SENTINEL + 1] = {false};
-  valid[LINE_START] = true;
-  struct MockLexer mock;
-  const int32_t input[] = {'N'};
-  init_mock_lexer(&mock, input, 1);
-  assert(!tree_sitter_mailmap_external_scanner_scan(NULL, &mock.lexer, valid));
-  tree_sitter_mailmap_external_scanner_destroy(NULL);
 }
 
 static void test_bounded_line_description_keeps_every_step(void) {
   const int32_t input[] =
-    {'N', ' ', '<', 'a', '>', 'M', ' ', '<', 'b', '>', 't', '#', 'c', 0, 'z'};
+    {'N', '<', 'a', '>', 'M', '<', 'b', '>', 't', '#', 'c', 0, 'z'};
   const Step expected[STEPS] = {
     {0, 0, PAIRED_MAPPING_START},
     {0, 0, NAME_START},
     {0, 1, NAME_TEXT},
     {1, 1, NAME_END},
-    {1, 2, NAME_SEPARATOR},
-    {2, 3, EMAIL_OPEN},
-    {3, 4, EMAIL_TEXT},
-    {4, 5, EMAIL_CLOSE},
-    {5, 5, NAME_START},
-    {5, 6, NAME_TEXT},
-    {6, 6, NAME_END},
-    {6, 7, NAME_SEPARATOR},
-    {7, 8, EMAIL_OPEN},
-    {8, 9, EMAIL_TEXT},
-    {9, 10, EMAIL_CLOSE},
-    {10, 10, IGNORED_START},
-    {10, 11, IGNORED_TEXT},
-    {11, 11, IGNORED_END},
-    {11, 11, COMMENT_START},
-    {11, 12, COMMENT_MARKER},
-    {12, 13, COMMENT_TEXT},
-    {13, 13, COMMENT_END},
-    {13, 13, IGNORED_START},
-    {13, 15, IGNORED_TEXT},
-    {15, 15, IGNORED_END},
-    {15, 15, END_OF_FILE},
+    {1, 1, MISSING_NAME_SEPARATOR},
+    {1, 2, EMAIL_OPEN},
+    {2, 3, EMAIL_TEXT},
+    {3, 4, EMAIL_CLOSE},
+    {4, 4, NAME_START},
+    {4, 5, NAME_TEXT},
+    {5, 5, NAME_END},
+    {5, 5, MISSING_NAME_SEPARATOR},
+    {5, 6, EMAIL_OPEN},
+    {6, 7, EMAIL_TEXT},
+    {7, 8, EMAIL_CLOSE},
+    {8, 8, IGNORED_START},
+    {8, 9, IGNORED_TEXT},
+    {9, 9, IGNORED_END},
+    {9, 9, COMMENT_START},
+    {9, 10, COMMENT_MARKER},
+    {10, 11, COMMENT_TEXT},
+    {11, 11, COMMENT_END},
+    {11, 11, IGNORED_START},
+    {11, 13, IGNORED_TEXT},
+    {13, 13, IGNORED_END},
+    {13, 13, END_OF_FILE},
   };
   struct MockLexer mock;
   init_mock_lexer(&mock, input, sizeof(input) / sizeof(input[0]));
@@ -341,13 +312,26 @@ static void test_reused_allocator_failure_and_cleanup(void) {
 }
 #endif
 
+static void test_null_payload_remains_safe_after_allocation_failure(void) {
+  char buffer[TREE_SITTER_SERIALIZATION_BUFFER_SIZE];
+  assert(tree_sitter_mailmap_external_scanner_serialize(NULL, buffer) == 0);
+  tree_sitter_mailmap_external_scanner_deserialize(NULL, NULL, 0);
+  bool valid[ERROR_SENTINEL + 1] = {false};
+  valid[LINE_START] = true;
+  struct MockLexer mock;
+  const int32_t input[] = {'N'};
+  init_mock_lexer(&mock, input, 1);
+  assert(!tree_sitter_mailmap_external_scanner_scan(NULL, &mock.lexer, valid));
+  tree_sitter_mailmap_external_scanner_destroy(NULL);
+}
+
 int main(void) {
+  test_null_payload_remains_safe_after_allocation_failure();
   test_internal_lexer_accepts_eof_only_at_input_end();
   test_lifecycle_and_serialization_round_trip();
   test_failed_and_recovery_scans_preserve_state();
   test_restored_tokens_preserve_ranges_and_finish_at_eof();
-  test_text_stops_before_decoding_failure_without_consuming_it();
-  test_null_payload_remains_safe_after_allocation_failure();
+  test_text_runs_look_ahead_over_the_opposite_run();
   test_bounded_line_description_keeps_every_step();
 #ifdef TREE_SITTER_REUSE_ALLOCATOR
   test_reused_allocator_failure_and_cleanup();

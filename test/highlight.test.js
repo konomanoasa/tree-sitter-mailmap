@@ -199,22 +199,22 @@ const cases = [
     ],
   ],
   [
-    "inline comment follows a complete address",
-    "N <a># note",
+    "comment terminates an incomplete address",
+    "N <a# note",
     [
       [0, 1, "string"],
       [2, 3, "punctuation.bracket"],
       [3, 4, "string.special"],
-      [4, 5, "punctuation.bracket"],
-      [5, 11, "comment"],
+      [4, 10, "comment"],
     ],
   ],
   [
-    "empty address has only delimiter captures",
-    "N <>",
+    "missing separator has no capture",
+    "N<a>",
     [
       [0, 1, "string"],
-      [2, 3, "punctuation.bracket"],
+      [1, 2, "punctuation.bracket"],
+      [2, 3, "string.special"],
       [3, 4, "punctuation.bracket"],
     ],
   ],
@@ -239,11 +239,7 @@ const cases = [
       [6, 7, "punctuation.bracket"],
     ],
   ],
-  [
-    "NUL suffix after a comment stays uncolored",
-    "# c\0tail",
-    [[0, 3, "comment"]],
-  ],
+  ["name-only input retains highlighting", "Name", [[0, 4, "string"]]],
   ["leading layout is uncolored", " \t# note", [[2, 8, "comment"]]],
 ];
 for (const [name, source, captures] of cases) {

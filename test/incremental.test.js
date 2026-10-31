@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { hasError } from "./support/cst.js";
+import { issues, owners } from "./support/cst.js";
 import {
   applyEdits,
   assertEditHistory,
-  assertEditMatchesContract,
+  assertIncrementalEqualsFresh,
+  parse,
 } from "./support/parser.js";
 
 const histories = [
@@ -93,30 +94,32 @@ for (const [owner, prefix, suffix] of [
   ["email", "Name <", "a>"],
   ["comment", "# a", "b"],
 ]) {
-  test(`mailmap: repairing a split character after a decoding failure restores ${owner}`, () => {
+  test(`mailmap: splitting the character after a decoding failure merges the issue in ${owner}`, () => {
     const offset = Buffer.byteLength(prefix);
     const source = Buffer.concat([
       Buffer.from(prefix),
       Buffer.from([255]),
       Buffer.from(`é${suffix}`),
     ]);
-    const edits = [
-      { byte: offset + 2, deleteBytes: 1, insert: "" },
-      { byte: offset, deleteBytes: 2, insert: "é" },
-    ];
-    const incremental = assertEditMatchesContract(
+    const edits = [{ byte: offset + 2, deleteBytes: 1, insert: "" }];
+    const incremental = assertIncrementalEqualsFresh(
       source,
       edits,
       applyEdits(source, edits),
     );
-    assert.equal(hasError(incremental), false);
+    assert.deepEqual(
+      incremental
+        .filter(({ kind }) => kind === "syntax_issue")
+        .map(({ start, end }) => [start, end]),
+      [[offset, offset + 2]],
+    );
   });
 }
 
-test("mailmap: repairing byte edits across Unicode boundaries restores normal CST", () => {
+test("mailmap: edits inside a boundary character merge adjacent decoding issues", () => {
   for (const bom of ["", "\uFEFF"]) {
     for (const character of ["¿", "€", "😀"]) {
-      for (const [context, prefix, suffix] of [
+      for (const [owner, prefix, suffix] of [
         ["name", "N", " <old>"],
         ["email", "N <", ">"],
         ["comment", "#", ""],
@@ -139,27 +142,30 @@ test("mailmap: repairing byte edits across Unicode boundaries restores normal CS
             insert: "a",
           },
         ];
-        edits.push({
-          byte: head.length,
-          deleteBytes: encoded.length,
-          insert: "z",
-        });
-        const actual = assertEditMatchesContract(
+        const actual = assertIncrementalEqualsFresh(
           source,
           edits,
           applyEdits(source, edits),
         );
-        assert.equal(hasError(actual), false, context);
+        assert.deepEqual(issues(actual), [
+          [
+            "invalid_syntax",
+            "invalid_encoding",
+            head.length,
+            head.length + encoded.length,
+          ],
+        ]);
+        assert.deepEqual(owners(actual), [owner]);
       }
     }
   }
 });
 
-test("mailmap: fixed-seed generated histories preserve normal CST and fresh determinism", () => {
+test("mailmap: fixed-seed generated histories preserve roles, issues and byte ranges", () => {
   const seed = 0x341ac9;
   const multiplier = 1664525;
   const increment = 1013904223;
-  const historyCount = 120;
+  const historiesPerInput = 2;
   const editsPerHistory = 4;
   const maxDeletedBytes = 3;
   let state = seed;
@@ -180,6 +186,7 @@ test("mailmap: fixed-seed generated histories preserve normal CST and fresh dete
     "N<a>M<b>tail#c\0tail",
     "\0ignored\nN <b>",
   ];
+  const historyCount = seeds.length * historiesPerInput;
   for (let sample = 0; sample < historyCount; sample++) {
     const source = seeds[sample % seeds.length];
     let bytes = Buffer.from(source);
@@ -193,7 +200,76 @@ test("mailmap: fixed-seed generated histories preserve normal CST and fresh dete
       };
       edits.push(edit);
       bytes = applyEdits(bytes, [edit]);
-      assertEditMatchesContract(source, edits, bytes);
     }
+    assertEditHistory({ source, edits });
   }
 });
+
+for (const newline of ["\n", "\r\n"]) {
+  const tail = "Tail <tail>\nLast <last>\n".replaceAll("\n", newline);
+  for (const prefix of ["", "Before <before>\n".replaceAll("\n", newline)]) {
+    for (const line of ["Name <old>", "Name <new> Old <old>"]) {
+      test(`mailmap: truncating ${JSON.stringify(line)} before ${JSON.stringify(newline)} preserves adjacent entries with prefix ${JSON.stringify(prefix)}`, () => {
+        const initial = prefix + line + newline + tail;
+        const original = parse(initial);
+        for (let cut = 0; cut < line.length; cut++) {
+          const source = prefix + line.slice(0, cut) + newline + tail;
+          const edits = [
+            {
+              byte: prefix.length + cut,
+              deleteBytes: line.length - cut,
+              insert: "",
+            },
+          ];
+          const tree = assertIncrementalEqualsFresh(initial, edits, source);
+          const boundary = prefix.length + cut + newline.length;
+          if (prefix) {
+            assert.deepEqual(
+              tree
+                .filter(
+                  (node) => node.parent === 0 && node.start < prefix.length,
+                )
+                .map(({ kind, start, end }) => [kind, start, end]),
+              [["mapping", 0, prefix.length]],
+              source,
+            );
+          }
+          assert.deepEqual(
+            tree
+              .filter((node) => node.parent === 0 && node.start >= boundary)
+              .map(({ kind, start, end }) => [
+                kind,
+                start - boundary,
+                end - boundary,
+              ]),
+            [
+              ["mapping", 0, 11 + newline.length],
+              ["mapping", 11 + newline.length, tail.length],
+            ],
+            source,
+          );
+          for (const node of tree.filter(
+            (node) => node.kind === "syntax_issue",
+          )) {
+            assert.ok(
+              node.start >= prefix.length && node.end <= boundary,
+              source,
+            );
+          }
+          assert.deepEqual(
+            parse(initial, [
+              ...edits,
+              {
+                byte: prefix.length + cut,
+                deleteBytes: 0,
+                insert: line.slice(cut),
+              },
+            ]),
+            original,
+            source,
+          );
+        }
+      });
+    }
+  }
+}
