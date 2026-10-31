@@ -1,6 +1,6 @@
 [package]
 name = "konomanoasa-tree-sitter-mailmap"
-version = "0.2.3"
+version = "0.3.0"
 description = "Tree-sitter grammar for mailmap."
 readme = "README.md"
 license = "MIT"

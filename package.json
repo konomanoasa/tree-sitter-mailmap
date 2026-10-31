@@ -1,6 +1,6 @@
 {
   "name": "@konomanoasa/tree-sitter-mailmap",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Tree-sitter grammar for mailmap.",
   "license": "MIT",
   "repository": "git+https://github.com/konomanoasa/tree-sitter-mailmap.git",
