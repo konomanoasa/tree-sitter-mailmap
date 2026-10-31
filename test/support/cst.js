@@ -10,10 +10,12 @@ function parseCst(text, source) {
     if (value === newlineByte) starts.push(offset + 1);
   const nodes = [],
     ancestors = [];
+  const markedNodes = new Set();
   for (const line of text.split("\n")) {
+    const marked = /^[0-9]+:[0-9]+ +- [0-9]+:[0-9]+ +([a-z_]+: )?•/.test(line);
     const location =
-      /^([0-9]+):([0-9]+)( +)- ([0-9]+):([0-9]+)( +)(([a-z_]+): )?([a-z_]+|ERROR|MISSING|"[^"]*")/.exec(
-        line,
+      /^([0-9]+):([0-9]+)( +)- ([0-9]+):([0-9]+)( +)(([a-z_]+): )?([a-z_]+|ERROR|"[^"]*")/.exec(
+        line.replaceAll(/ •/g, " "),
       );
     if (!location) continue;
     const [
@@ -30,11 +32,14 @@ function parseCst(text, source) {
     ] = location;
     const width = startRow.length + startColumn.length + startPadding.length;
     const endWidth = endRow.length + 1 + endColumn.length;
-    const depth =
+    // Recovery markers occupy an extra display column on some CLI lines.
+    const depth = Math.floor(
       (nodePadding.length - Math.max(width - endWidth, 0) - rootIndentWidth) /
-      nodeIndentWidth;
-    assert.ok(Number.isInteger(depth) && depth >= 0, line);
+        nodeIndentWidth,
+    );
+    assert.ok(depth >= 0 && depth <= ancestors.length, line);
     ancestors.length = depth;
+    if (marked) markedNodes.add(nodes.length);
     nodes.push({
       kind: kind.startsWith('"') ? JSON.parse(kind) : kind,
       field: field ?? null,
@@ -44,34 +49,27 @@ function parseCst(text, source) {
     });
     ancestors.push(nodes.length - 1);
   }
-  assert.equal(nodes[0]?.kind, "document", text);
+  assert.ok(["document", "ERROR"].includes(nodes[0]?.kind), text);
   assert.equal(nodes[0].end, bytes.length, text);
-  assert.ok(
-    !nodes.some(({ kind }) => kind === "ERROR" || kind === "MISSING"),
-    text,
-  );
+  const parents = new Set(nodes.map(({ parent }) => parent));
+  for (const index of markedNodes) {
+    const node = nodes[index];
+    if (
+      node.start === node.end &&
+      !parents.has(index) &&
+      node.kind !== "ERROR" &&
+      !node.kind.startsWith("MISSING")
+    ) {
+      node.kind = `MISSING ${node.kind}`;
+    }
+  }
   return nodes;
 }
 
-function issues(nodes) {
-  return nodes.flatMap((node, index) => {
-    if (node.kind !== "syntax_issue") return [];
-    const outcome = nodes[index + 1],
-      reason = nodes[index + 2];
-    assert.equal(outcome.parent, index);
-    assert.equal(reason.parent, index + 1);
-    assert.deepEqual(
-      [outcome.start, outcome.end, reason.start, reason.end],
-      [node.start, node.end, node.start, node.end],
-    );
-    return [[outcome.kind, reason.kind, node.start, node.end]];
-  });
-}
-
-function owners(nodes) {
-  return nodes
-    .filter(({ kind }) => kind === "syntax_issue")
-    .map(({ parent }) => nodes[parent].kind);
+function hasError(nodes) {
+  return nodes.some(
+    ({ kind }) => kind === "ERROR" || kind.startsWith("MISSING"),
+  );
 }
 
 function leaves(source, nodes) {
@@ -84,4 +82,4 @@ function leaves(source, nodes) {
   );
 }
 
-export { issues, leaves, owners, parseCst };
+export { hasError, leaves, parseCst };

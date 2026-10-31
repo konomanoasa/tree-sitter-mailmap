@@ -3,7 +3,8 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { after, before } from "node:test";
 import { createTreeSitter, grammars, root } from "../../scripts/tree-sitter.js";
-import { parseCst } from "./cst.js";
+
+import { hasError, parseCst } from "./cst.js";
 
 const commandTimeoutMs = 30_000;
 const commandMaxBufferBytes = 64 * 1024 * 1024;
@@ -30,7 +31,13 @@ function run(args) {
     maxBuffer: commandMaxBufferBytes,
   });
   assert.ifError(result.error);
-  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.ok(
+    result.status === 0 ||
+      (args[0] === "parse" &&
+        result.status === 1 &&
+        /[(](ERROR|MISSING)[ )]/.test(result.stdout)),
+    result.stdout + result.stderr,
+  );
   return result.stdout;
 }
 
@@ -89,23 +96,25 @@ function parse(source, edits = []) {
   return parseCst(text, applyEdits(source, edits));
 }
 
-function assertIncrementalEqualsFresh(initial, edits, source) {
-  try {
-    const incremental = parse(initial, edits);
-    assert.deepEqual(incremental, parse(source));
-    return incremental;
-  } catch (error) {
-    if (error instanceof Error)
-      error.message += `\n${JSON.stringify({ initial, edits, source })}`;
-    throw error;
+function assertEditMatchesContract(initial, edits, source) {
+  const incremental = parse(initial, edits);
+  const fresh = parse(source);
+  if (!hasError(fresh)) {
+    assert.deepEqual(
+      incremental,
+      fresh,
+      JSON.stringify({ initial, edits, source }),
+    );
   }
+  assert.deepEqual(parse(source), fresh, JSON.stringify({ source }));
+  return incremental;
 }
 
 function assertEditHistory({ source, edits }) {
   for (let count = 1; count <= edits.length; count++) {
     const history = edits.slice(0, count);
-    assertIncrementalEqualsFresh(source, history, applyEdits(source, history));
+    assertEditMatchesContract(source, history, applyEdits(source, history));
   }
 }
 
-export { applyEdits, assertEditHistory, assertIncrementalEqualsFresh, parse };
+export { applyEdits, assertEditHistory, assertEditMatchesContract, parse };

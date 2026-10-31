@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { issues, owners } from "./support/cst.js";
+import { hasError } from "./support/cst.js";
 import {
   applyEdits,
   assertEditHistory,
-  assertIncrementalEqualsFresh,
+  assertEditMatchesContract,
 } from "./support/parser.js";
 
 const histories = [
@@ -93,32 +93,30 @@ for (const [owner, prefix, suffix] of [
   ["email", "Name <", "a>"],
   ["comment", "# a", "b"],
 ]) {
-  test(`mailmap: splitting the character after a decoding failure merges the issue in ${owner}`, () => {
+  test(`mailmap: repairing a split character after a decoding failure restores ${owner}`, () => {
     const offset = Buffer.byteLength(prefix);
     const source = Buffer.concat([
       Buffer.from(prefix),
       Buffer.from([255]),
       Buffer.from(`é${suffix}`),
     ]);
-    const edits = [{ byte: offset + 2, deleteBytes: 1, insert: "" }];
-    const incremental = assertIncrementalEqualsFresh(
+    const edits = [
+      { byte: offset + 2, deleteBytes: 1, insert: "" },
+      { byte: offset, deleteBytes: 2, insert: "é" },
+    ];
+    const incremental = assertEditMatchesContract(
       source,
       edits,
       applyEdits(source, edits),
     );
-    assert.deepEqual(
-      incremental
-        .filter(({ kind }) => kind === "syntax_issue")
-        .map(({ start, end }) => [start, end]),
-      [[offset, offset + 2]],
-    );
+    assert.equal(hasError(incremental), false);
   });
 }
 
-test("mailmap: edits inside a boundary character merge adjacent decoding issues", () => {
+test("mailmap: repairing byte edits across Unicode boundaries restores normal CST", () => {
   for (const bom of ["", "\uFEFF"]) {
     for (const character of ["¿", "€", "😀"]) {
-      for (const [owner, prefix, suffix] of [
+      for (const [context, prefix, suffix] of [
         ["name", "N", " <old>"],
         ["email", "N <", ">"],
         ["comment", "#", ""],
@@ -141,26 +139,23 @@ test("mailmap: edits inside a boundary character merge adjacent decoding issues"
             insert: "a",
           },
         ];
-        const actual = assertIncrementalEqualsFresh(
+        edits.push({
+          byte: head.length,
+          deleteBytes: encoded.length,
+          insert: "z",
+        });
+        const actual = assertEditMatchesContract(
           source,
           edits,
           applyEdits(source, edits),
         );
-        assert.deepEqual(issues(actual), [
-          [
-            "invalid_syntax",
-            "invalid_encoding",
-            head.length,
-            head.length + encoded.length,
-          ],
-        ]);
-        assert.deepEqual(owners(actual), [owner]);
+        assert.equal(hasError(actual), false, context);
       }
     }
   }
 });
 
-test("mailmap: fixed-seed generated histories preserve roles, issues and byte ranges", () => {
+test("mailmap: fixed-seed generated histories preserve normal CST and fresh determinism", () => {
   const seed = 0x341ac9;
   const multiplier = 1664525;
   const increment = 1013904223;
@@ -198,7 +193,7 @@ test("mailmap: fixed-seed generated histories preserve roles, issues and byte ra
       };
       edits.push(edit);
       bytes = applyEdits(bytes, [edit]);
-      assertIncrementalEqualsFresh(source, edits, bytes);
+      assertEditMatchesContract(source, edits, bytes);
     }
   }
 });

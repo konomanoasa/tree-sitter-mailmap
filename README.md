@@ -25,10 +25,6 @@ npm test
 
 [Git 2.55.0 gitmailmap manual](https://git-scm.com/docs/gitmailmap/2.55.0)
 
-## Used By
-
-[gitfile-ts-mode](https://github.com/konomanoasa/gitfile-ts-mode)
-
 ## License
 
 [MIT](LICENSE)

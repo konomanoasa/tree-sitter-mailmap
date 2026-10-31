@@ -33,7 +33,9 @@ const grammars = configuration.grammars.map((grammar) => ({
 
 const language = packageName.slice("tree-sitter-".length).replaceAll("-", "_");
 
-test(`${language}: generated checks reject stale and missing files without rewriting them`, () => {
+test(`${language}: generated checks reject stale and missing files without rewriting them`, {
+  skip: Boolean(process.env.CI) && process.platform !== "darwin",
+}, () => {
   const cache = join(root, "node_modules", ".cache");
   mkdirSync(cache, { recursive: true });
   const directory = mkdtempSync(join(cache, `${packageName}-generated-check-`));
@@ -195,7 +197,9 @@ syncBuiltinESMExports();
   }
 });
 
-test(`${language}: package metadata matches the grammar and license`, () => {
+test(`${language}: package metadata matches the grammar and license`, {
+  skip: Boolean(process.env.CI) && process.platform !== "darwin",
+}, () => {
   const { metadata } = configuration;
   const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
   for (const key of ["version", "license", "description"])

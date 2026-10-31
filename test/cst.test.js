@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { root } from "../scripts/tree-sitter.js";
-import { issues, leaves, owners, parseCst } from "./support/cst.js";
+import { hasError, leaves, parseCst } from "./support/cst.js";
 import { parse } from "./support/parser.js";
 
 function parseCorpus(text) {
@@ -32,7 +32,7 @@ test("mailmap: long lines and the last mapping are never truncated", () => {
   const addressLength = 70_000;
   const source = `N <${"x".repeat(addressLength)}>\nLast <ok>`;
   const nodes = parse(source);
-  assert.deepEqual(issues(nodes), []);
+  assert.equal(hasError(nodes), false);
   assert.equal(nodes.filter(({ kind }) => kind === "mapping").length, 2);
   assert.ok(
     leaves(source, nodes).some(
@@ -48,12 +48,8 @@ for (const file of readdirSync(corpusDirectory).sort()) {
     readFileSync(join(corpusDirectory, file), "utf8"),
   );
   for (const { name, source } of entries) {
-    test(`mailmap: corpus source coverage issue structure and fresh determinism: ${file}: ${name}`, () => {
+    test(`mailmap: corpus source coverage and fresh determinism: ${file}: ${name}`, () => {
       const tree = parse(source);
-      issues(tree);
-      for (const node of tree.filter(({ kind }) => kind === "syntax_issue")) {
-        assert.equal(node.field, "issue");
-      }
       assert.deepEqual(parse(source), tree);
     });
   }
@@ -88,7 +84,7 @@ test("mailmap: corpus input reader rejects unsupported conditions and framing", 
   }
 });
 
-test("mailmap: invalid UTF-8 runs are grouped within each textual owner", () => {
+test("mailmap: invalid UTF-8 is rejected in every textual context", () => {
   const invalidBytes = Buffer.from([255, 128, 254]);
   const contexts = [
     ["name", "N", " <a>"],
@@ -97,23 +93,13 @@ test("mailmap: invalid UTF-8 runs are grouped within each textual owner", () => 
     ["ignored_suffix", "\0", ""],
     ["ignored_suffix", "N <a> ", ""],
   ];
-  for (const [owner, prefix, suffix] of contexts) {
+  for (const [context, prefix, suffix] of contexts) {
     const source = Buffer.concat([
       Buffer.from(prefix),
       invalidBytes,
       Buffer.from(suffix),
     ]);
-    const start = Buffer.byteLength(prefix);
-    const nodes = parse(source);
-    assert.deepEqual(issues(nodes), [
-      [
-        "invalid_syntax",
-        "invalid_encoding",
-        start,
-        start + invalidBytes.length,
-      ],
-    ]);
-    assert.deepEqual(owners(nodes), [owner]);
+    assert.equal(hasError(parse(source)), true, context);
   }
 });
 
@@ -160,10 +146,43 @@ test("mailmap: CST helpers preserve fields, hierarchy and UTF-8 ranges across CR
   ]);
 });
 
-test("mailmap: CST helpers reject truncated roots and native recovery nodes", () => {
+test("mailmap: CST helpers retain standard recovery and reject truncated roots", () => {
   assert.throws(() => parseCst("0:0 - 0:1   document", "é"));
-  for (const kind of ["ERROR", "MISSING"]) {
-    const text = `0:0 - 0:1   document\n0:0 - 0:1     ${kind}`;
-    assert.throws(() => parseCst(text, "a"));
-  }
+  assert.deepEqual(parseCst("0:0 - 0:1   •ERROR", "a"), [
+    { kind: "ERROR", field: null, start: 0, end: 1, parent: null },
+  ]);
+  const missing = parseCst(
+    "0:0 - 0:1   •document\n0:1 - 0:1     •email_close",
+    "a",
+  );
+  assert.deepEqual(missing[1], {
+    kind: "MISSING email_close",
+    field: null,
+    start: 1,
+    end: 1,
+    parent: 0,
+  });
+  assert.equal(hasError(missing), true);
+});
+
+test("mailmap: public metadata exposes normal roles without diagnostic nodes", () => {
+  const types = JSON.parse(
+    readFileSync(join(root, "src/node-types.json"), "utf8"),
+  );
+  assert.equal(
+    types.some(({ type }) => /issue|invalid|incomplete|missing/.test(type)),
+    false,
+  );
+  const mapping = types.find(({ type }) => type === "mapping");
+  assert.deepEqual(Object.keys(mapping.fields).sort(), [
+    "canonical_email",
+    "canonical_name",
+    "commit_email",
+    "commit_name",
+  ]);
+  assert.equal(mapping.fields.commit_email.required, true);
+  const email = types.find(({ type }) => type === "email");
+  assert.equal(email.fields.opening.required, true);
+  assert.equal(email.fields.closing.required, true);
+  assert.equal(email.children.required, false);
 });
