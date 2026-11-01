@@ -3,6 +3,7 @@
 [![CI](https://github.com/konomanoasa/tree-sitter-mailmap/actions/workflows/ci.yaml/badge.svg)](https://github.com/konomanoasa/tree-sitter-mailmap/actions/workflows/ci.yaml)
 [![crates.io](https://img.shields.io/crates/v/konomanoasa-tree-sitter-mailmap)](https://crates.io/crates/konomanoasa-tree-sitter-mailmap)
 [![npm](https://img.shields.io/npm/v/@konomanoasa/tree-sitter-mailmap)](https://www.npmjs.com/package/@konomanoasa/tree-sitter-mailmap)
+[![PyPI](https://img.shields.io/pypi/v/konomanoasa-tree-sitter-mailmap)](https://pypi.org/project/konomanoasa-tree-sitter-mailmap/)
 
 [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for
 Git mailmap files 2.55.0.
