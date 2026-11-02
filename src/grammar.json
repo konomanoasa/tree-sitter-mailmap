@@ -356,12 +356,12 @@
         }
       ]
     },
-    "_comment": {
+    "comment": {
       "type": "SEQ",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_comment_start"
+          "name": "_comment_line_start"
         },
         {
           "type": "SYMBOL",
@@ -391,23 +391,6 @@
               }
             ]
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_comment_end"
-        }
-      ]
-    },
-    "comment": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_comment_line_start"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_comment"
         },
         {
           "type": "CHOICE",
@@ -690,14 +673,6 @@
     {
       "type": "SYMBOL",
       "name": "_name_end"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_comment_start"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_comment_end"
     },
     {
       "type": "SYMBOL",

@@ -54,6 +54,8 @@ jobs:
           rust-version: stable
       - name: Test Python binding
         run: uv run --no-sync poe test
+      - name: Test Node.js builds
+        run: npm exec --call "node --test test/node/build.test.js"
       - name: Test Python builds
         run: npm exec --call "node --test test/python/build.test.js"
       - name: Test Rust builds

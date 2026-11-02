@@ -17,7 +17,7 @@ jobs:
 
   crates-io:
     needs: ci
-    runs-on: macos-15
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -38,7 +38,7 @@ jobs:
 
   npm:
     needs: ci
-    runs-on: macos-15
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -59,7 +59,7 @@ jobs:
 
   pypi:
     needs: ci
-    runs-on: macos-15
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -74,5 +74,5 @@ jobs:
           package_version=$(uv run --no-project python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
           readonly package_version
           test "v${package_version}" = "${GITHUB_REF_NAME}"
-      - run: uv build --no-sources
+      - run: uv build --sdist --no-sources
       - run: uv publish --trusted-publishing always

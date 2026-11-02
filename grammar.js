@@ -30,8 +30,6 @@ export default grammar({
     $._comment_line_start,
     $._name_start,
     $._name_end,
-    $._comment_start,
-    $._comment_end,
     $._ignored_start,
     $._ignored_end,
     $._layout,
@@ -82,17 +80,11 @@ export default grammar({
         optional(missing($, "email_text")),
         choice(field("closing", $.email_close), missing($, "email_close")),
       ),
-    _comment: ($) =>
-      seq(
-        $._comment_start,
-        $.comment_marker,
-        repeat(choice($.comment_text, issue($, "invalid_encoding"))),
-        $._comment_end,
-      ),
     comment: ($) =>
       seq(
         $._comment_line_start,
-        $._comment,
+        $.comment_marker,
+        repeat(choice($.comment_text, issue($, "invalid_encoding"))),
         optional($.ignored_suffix),
         $._ending,
       ),
@@ -105,7 +97,6 @@ export default grammar({
     blank_line: ($) =>
       seq($._blank_start, optional($.ignored_suffix), $._ending),
     _ending: ($) => choice($.line_ending, $._eof),
-    // Prevent premature EOF acceptance in Tree-sitter 0.27.0.
     _unmatchable: () => token(seq(/[\s\S]/, /[^\s\S]/)),
     ...issueRules,
   },

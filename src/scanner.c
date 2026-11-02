@@ -12,8 +12,6 @@ enum Token {
   COMMENT_LINE_START,
   NAME_START,
   NAME_END,
-  COMMENT_START,
-  COMMENT_END,
   IGNORED_START,
   IGNORED_END,
   LAYOUT,
@@ -114,7 +112,8 @@ static void describe(Scanner *s, TSLexer *lexer) {
   uint32_t close[2] = {NONE, NONE};
   uint32_t word_start[3] = {NONE, NONE, NONE};
   uint32_t word_end[3] = {0, 0, 0};
-  uint32_t comment = NONE, nul = NONE;
+  uint32_t nul = NONE;
+  const bool comment = lexer->lookahead == '#';
   unsigned emails = 0;
   bool inside = false;
   int32_t last = 0;
@@ -122,9 +121,8 @@ static void describe(Scanner *s, TSLexer *lexer) {
   while (!lexer->eof(lexer) && lexer->lookahead != '\n') {
     const int32_t c = lexer->lookahead;
     if (nul == NONE && c == 0) nul = s->position;
-    if (nul == NONE && comment == NONE) {
-      if (s->position == 0 && c == '#') comment = s->position;
-      else if (inside) {
+    if (nul == NONE && !comment) {
+      if (inside) {
         if (c == '>') {
           close[emails++] = s->position;
           inside = false;
@@ -143,11 +141,14 @@ static void describe(Scanner *s, TSLexer *lexer) {
   const bool eof = lexer->eof(lexer);
   const uint32_t content_end = s->position - (last == '\r' && !eof ? 1 : 0);
   const uint32_t line_end = s->position + (eof ? 0 : 1);
-  const uint32_t comment_end = nul < content_end ? nul : content_end;
-  const uint32_t mapping_end = comment < comment_end ? comment : comment_end;
+  const uint32_t limit = nul < content_end ? nul : content_end;
   const bool has_name = word_start[0] < word_end[0];
   const bool has_email = open[0] != NONE;
-  if (has_name || has_email) {
+  if (comment) {
+    push(s, COMMENT_LINE_START, 0, 0);
+    push(s, COMMENT_MARKER, 0, 1);
+    if (1 < limit) push(s, COMMENT_TEXT, 1, limit);
+  } else if (has_name || has_email) {
     const unsigned email_count = open[1] != NONE || !has_name ? 2 : 1;
     push(
       s,
@@ -165,10 +166,10 @@ static void describe(Scanner *s, TSLexer *lexer) {
         word_end[word]
       );
       if (open[word] == NONE) {
-        push(s, MISSING_COMMIT_EMAIL, mapping_end, mapping_end);
+        push(s, MISSING_COMMIT_EMAIL, limit, limit);
         continue;
       }
-      email(s, open[word], close[word], mapping_end, word == 0);
+      email(s, open[word], close[word], limit, word == 0);
     }
     span(
       s,
@@ -179,14 +180,7 @@ static void describe(Scanner *s, TSLexer *lexer) {
       word_end[email_count]
     );
   } else {
-    push(s, comment < nul ? COMMENT_LINE_START : BLANK_START, 0, 0);
-  }
-  if (comment < comment_end) {
-    push(s, COMMENT_START, comment, comment);
-    push(s, COMMENT_MARKER, comment, comment + 1);
-    if (comment + 1 < comment_end)
-      push(s, COMMENT_TEXT, comment + 1, comment_end);
-    push(s, COMMENT_END, comment_end, comment_end);
+    push(s, BLANK_START, 0, 0);
   }
   span(s, IGNORED_START, IGNORED_TEXT, IGNORED_END, nul, content_end);
   if (line_end > content_end) push(s, LINE_ENDING, content_end, line_end);
