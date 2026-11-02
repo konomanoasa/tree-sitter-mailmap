@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/konomanoasa-tree-sitter-mailmap)](https://pypi.org/project/konomanoasa-tree-sitter-mailmap/)
 
 [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) grammar for
-Git mailmap files 2.55.0.
+Git mailmap files 2.56.0.
 
 ## Installation
 
@@ -24,7 +24,7 @@ npm test
 
 ## Specification
 
-[Git 2.55.0 gitmailmap manual](https://git-scm.com/docs/gitmailmap/2.55.0)
+[Git 2.56.0 gitmailmap manual](https://git-scm.com/docs/gitmailmap/2.56.0)
 
 ## License
 

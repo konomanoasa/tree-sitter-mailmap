@@ -53,11 +53,11 @@ const histories = [
     edits: [{ byte: 0, deleteBytes: 5, insert: "" }],
   },
   {
-    name: "insert and remove comment marker",
-    source: "Name <old>",
+    name: "switch a comment to a name with leading whitespace and restore it",
+    source: "#Name<old>",
     edits: [
-      { byte: 7, deleteBytes: 0, insert: "#" },
-      { byte: 7, deleteBytes: 1, insert: "" },
+      { byte: 0, deleteBytes: 0, insert: " " },
+      { byte: 0, deleteBytes: 1, insert: "" },
     ],
   },
   {

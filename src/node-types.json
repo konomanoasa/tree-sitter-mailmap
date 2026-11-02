@@ -198,10 +198,6 @@
         {
           "type": "missing_email_text",
           "named": true
-        },
-        {
-          "type": "missing_name_separator",
-          "named": true
         }
       ]
     }
@@ -251,7 +247,7 @@
         ]
       },
       "issue": {
-        "multiple": true,
+        "multiple": false,
         "required": false,
         "types": [
           {
@@ -265,10 +261,6 @@
       "multiple": true,
       "required": false,
       "types": [
-        {
-          "type": "comment",
-          "named": true
-        },
         {
           "type": "ignored_suffix",
           "named": true
@@ -367,10 +359,6 @@
   },
   {
     "type": "missing_email_text",
-    "named": true
-  },
-  {
-    "type": "missing_name_separator",
     "named": true
   },
   {

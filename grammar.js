@@ -4,7 +4,6 @@ const missingKinds = (name) => [
 ];
 const issueKinds = [
   ["invalid_encoding", "invalid_syntax", "invalid_encoding"],
-  ["missing_name_separator", "invalid_syntax", "missing_name_separator"],
   ...["email_text", "email_close", "commit_email"].flatMap(missingKinds),
 ];
 const issueRules = Object.fromEntries(
@@ -18,8 +17,6 @@ const issue = ($, name) =>
 const missing = ($, name) =>
   choice(issue($, `missing_${name}`), issue($, `incomplete_${name}`));
 const roleField = ($, role, kind) => field(`${role}_${kind}`, $[kind]);
-const name = ($, role) =>
-  seq(roleField($, role, "name"), optional(issue($, "missing_name_separator")));
 const commitEmail = ($) =>
   choice(roleField($, "commit", "email"), missing($, "commit_email"));
 
@@ -56,16 +53,20 @@ export default grammar({
     mapping: ($) =>
       seq(
         choice(
-          seq($._simple_mapping_start, name($, "canonical"), commitEmail($)),
+          seq(
+            $._simple_mapping_start,
+            roleField($, "canonical", "name"),
+            commitEmail($),
+          ),
           seq(
             $._paired_mapping_start,
-            optional(name($, "canonical")),
+            optional(roleField($, "canonical", "name")),
             roleField($, "canonical", "email"),
-            optional(name($, "commit")),
+            optional(roleField($, "commit", "name")),
             commitEmail($),
           ),
         ),
-        repeat(choice(alias($._comment, $.comment), $.ignored_suffix)),
+        repeat($.ignored_suffix),
         $._ending,
       ),
     name: ($) =>

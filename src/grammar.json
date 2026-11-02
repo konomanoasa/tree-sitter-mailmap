@@ -36,38 +36,12 @@
                   "name": "_simple_mapping_start"
                 },
                 {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "FIELD",
-                      "name": "canonical_name",
-                      "content": {
-                        "type": "SYMBOL",
-                        "name": "name"
-                      }
-                    },
-                    {
-                      "type": "CHOICE",
-                      "members": [
-                        {
-                          "type": "FIELD",
-                          "name": "issue",
-                          "content": {
-                            "type": "ALIAS",
-                            "content": {
-                              "type": "SYMBOL",
-                              "name": "_missing_name_separator_issue"
-                            },
-                            "named": true,
-                            "value": "syntax_issue"
-                          }
-                        },
-                        {
-                          "type": "BLANK"
-                        }
-                      ]
-                    }
-                  ]
+                  "type": "FIELD",
+                  "name": "canonical_name",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "name"
+                  }
                 },
                 {
                   "type": "CHOICE",
@@ -126,38 +100,12 @@
                   "type": "CHOICE",
                   "members": [
                     {
-                      "type": "SEQ",
-                      "members": [
-                        {
-                          "type": "FIELD",
-                          "name": "canonical_name",
-                          "content": {
-                            "type": "SYMBOL",
-                            "name": "name"
-                          }
-                        },
-                        {
-                          "type": "CHOICE",
-                          "members": [
-                            {
-                              "type": "FIELD",
-                              "name": "issue",
-                              "content": {
-                                "type": "ALIAS",
-                                "content": {
-                                  "type": "SYMBOL",
-                                  "name": "_missing_name_separator_issue"
-                                },
-                                "named": true,
-                                "value": "syntax_issue"
-                              }
-                            },
-                            {
-                              "type": "BLANK"
-                            }
-                          ]
-                        }
-                      ]
+                      "type": "FIELD",
+                      "name": "canonical_name",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "name"
+                      }
                     },
                     {
                       "type": "BLANK"
@@ -176,38 +124,12 @@
                   "type": "CHOICE",
                   "members": [
                     {
-                      "type": "SEQ",
-                      "members": [
-                        {
-                          "type": "FIELD",
-                          "name": "commit_name",
-                          "content": {
-                            "type": "SYMBOL",
-                            "name": "name"
-                          }
-                        },
-                        {
-                          "type": "CHOICE",
-                          "members": [
-                            {
-                              "type": "FIELD",
-                              "name": "issue",
-                              "content": {
-                                "type": "ALIAS",
-                                "content": {
-                                  "type": "SYMBOL",
-                                  "name": "_missing_name_separator_issue"
-                                },
-                                "named": true,
-                                "value": "syntax_issue"
-                              }
-                            },
-                            {
-                              "type": "BLANK"
-                            }
-                          ]
-                        }
-                      ]
+                      "type": "FIELD",
+                      "name": "commit_name",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "name"
+                      }
                     },
                     {
                       "type": "BLANK"
@@ -265,22 +187,8 @@
         {
           "type": "REPEAT",
           "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_comment"
-                },
-                "named": true,
-                "value": "comment"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "ignored_suffix"
-              }
-            ]
+            "type": "SYMBOL",
+            "name": "ignored_suffix"
           }
         },
         {
@@ -629,24 +537,6 @@
       "named": true,
       "value": "invalid_syntax"
     },
-    "_missing_name_separator_outcome": {
-      "type": "ALIAS",
-      "content": {
-        "type": "SYMBOL",
-        "name": "_missing_name_separator"
-      },
-      "named": true,
-      "value": "missing_name_separator"
-    },
-    "_missing_name_separator_issue": {
-      "type": "ALIAS",
-      "content": {
-        "type": "SYMBOL",
-        "name": "_missing_name_separator_outcome"
-      },
-      "named": true,
-      "value": "invalid_syntax"
-    },
     "_missing_email_text_outcome": {
       "type": "ALIAS",
       "content": {
@@ -860,10 +750,6 @@
     {
       "type": "SYMBOL",
       "name": "_invalid_encoding"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "_missing_name_separator"
     },
     {
       "type": "SYMBOL",

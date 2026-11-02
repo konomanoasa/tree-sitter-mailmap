@@ -27,7 +27,6 @@ enum Token {
   COMMENT_TEXT,
   IGNORED_TEXT,
   INVALID_ENCODING,
-  MISSING_NAME_SEPARATOR,
   MISSING_EMAIL_TEXT,
   INCOMPLETE_EMAIL_TEXT,
   MISSING_EMAIL_CLOSE,
@@ -43,9 +42,8 @@ typedef struct {
   uint32_t start, end, token;
 } Step;
 
-// Max steps: names 6, emails 6, suffixes 6, comment 4, separators 2,
-// line start 1, ending 1.
-enum { STEPS = 26 };
+// Max mapping steps: names 6, emails 6, suffixes 6, line start 1, ending 1.
+enum { STEPS = 20 };
 
 // Positions are line-relative character offsets.
 typedef struct {
@@ -125,7 +123,7 @@ static void describe(Scanner *s, TSLexer *lexer) {
     const int32_t c = lexer->lookahead;
     if (nul == NONE && c == 0) nul = s->position;
     if (nul == NONE && comment == NONE) {
-      if (c == '#') comment = s->position;
+      if (s->position == 0 && c == '#') comment = s->position;
       else if (inside) {
         if (c == '>') {
           close[emails++] = s->position;
@@ -170,8 +168,6 @@ static void describe(Scanner *s, TSLexer *lexer) {
         push(s, MISSING_COMMIT_EMAIL, mapping_end, mapping_end);
         continue;
       }
-      if (word_start[word] < word_end[word] && word_end[word] == open[word])
-        push(s, MISSING_NAME_SEPARATOR, open[word], open[word]);
       email(s, open[word], close[word], mapping_end, word == 0);
     }
     span(

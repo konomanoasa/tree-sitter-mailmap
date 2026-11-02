@@ -26,7 +26,6 @@ test("mailmap: missing commit addresses follow trailing layout at every line bou
     { ending: "", outcome: "incomplete_syntax", issueOffsetBytes: 0 },
     { ending: "\nNext <ok>", outcome: "invalid_syntax", issueOffsetBytes: -1 },
     { ending: "\r\nNext <ok>", outcome: "invalid_syntax", issueOffsetBytes: 0 },
-    { ending: "# note", outcome: "invalid_syntax", issueOffsetBytes: 0 },
     { ending: "\0tail", outcome: "invalid_syntax", issueOffsetBytes: 0 },
   ];
   for (const { prefix, expectedFields } of prefixes) {
@@ -69,7 +68,12 @@ test("mailmap: ignored tails exclude surrounding layout but retain NUL suffix by
       assert.deepEqual(
         leaves(source, nodes).filter(([kind]) => kind === "ignored_text"),
         [
-          ["ignored_text", "tail \t middle"],
+          [
+            "ignored_text",
+            ending === "# note"
+              ? "tail \t middle \t\r# note"
+              : "tail \t middle",
+          ],
           ...(ending.startsWith("\0") ? [["ignored_text", ending]] : []),
         ],
       );
@@ -77,7 +81,7 @@ test("mailmap: ignored tails exclude surrounding layout but retain NUL suffix by
   }
 });
 
-test("mailmap: byte-only names retain their roles and report missing separators independently", () => {
+test("mailmap: byte-only names retain their roles with optional separators", () => {
   const cases = [
     [
       Buffer.from([255]),
@@ -108,31 +112,22 @@ test("mailmap: byte-only names retain their roles and report missing separators 
     ],
     [
       Buffer.from([255, ...Buffer.from("<old>")]),
-      [
-        ["invalid_syntax", "invalid_encoding", 0, 1],
-        ["invalid_syntax", "missing_name_separator", 1, 1],
-      ],
-      ["name", "mapping"],
+      [["invalid_syntax", "invalid_encoding", 0, 1]],
+      ["name"],
       [["canonical_name", 0, 1]],
       [],
     ],
     [
       Buffer.from([78, 255, ...Buffer.from("<old>")]),
-      [
-        ["invalid_syntax", "invalid_encoding", 1, 2],
-        ["invalid_syntax", "missing_name_separator", 2, 2],
-      ],
-      ["name", "mapping"],
+      [["invalid_syntax", "invalid_encoding", 1, 2]],
+      ["name"],
       [["canonical_name", 0, 2]],
       [["name_text", "N"]],
     ],
     [
       Buffer.from([...Buffer.from("<new> "), 255, ...Buffer.from("<old>")]),
-      [
-        ["invalid_syntax", "invalid_encoding", 6, 7],
-        ["invalid_syntax", "missing_name_separator", 7, 7],
-      ],
-      ["name", "mapping"],
+      [["invalid_syntax", "invalid_encoding", 6, 7]],
+      ["name"],
       [["commit_name", 6, 7]],
       [],
     ],
@@ -186,12 +181,12 @@ test("mailmap: repairing a byte-only name and completing its address preserve is
     },
     {
       edit: { byte: 3, deleteBytes: 0, insert: "#c" },
-      expected: [["invalid_syntax", "missing_commit_email", 3, 3]],
+      expected: [["incomplete_syntax", "missing_commit_email", 5, 5]],
     },
     { edit: { byte: 3, deleteBytes: 0, insert: "<old>" }, expected: [] },
     {
       edit: { byte: 3, deleteBytes: 5, insert: "  " },
-      expected: [["invalid_syntax", "missing_commit_email", 5, 5]],
+      expected: [["incomplete_syntax", "missing_commit_email", 7, 7]],
     },
     {
       edit: { byte: 5, deleteBytes: 2, insert: "" },

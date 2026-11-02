@@ -199,17 +199,16 @@ const cases = [
     ],
   ],
   [
-    "comment terminates an incomplete address",
+    "hash remains text in an incomplete address",
     "N <a# note",
     [
       [0, 1, "string"],
       [2, 3, "punctuation.bracket"],
-      [3, 4, "string.special"],
-      [4, 10, "comment"],
+      [3, 10, "string.special"],
     ],
   ],
   [
-    "missing separator has no capture",
+    "adjacent name and address retain their captures",
     "N<a>",
     [
       [0, 1, "string"],
@@ -226,7 +225,6 @@ const cases = [
       [2, 3, "punctuation.bracket"],
       [3, 4, "string.special"],
       [4, 5, "punctuation.bracket"],
-      [13, 16, "comment"],
     ],
   ],
   [
@@ -240,7 +238,7 @@ const cases = [
     ],
   ],
   ["name-only input retains highlighting", "Name", [[0, 4, "string"]]],
-  ["leading layout is uncolored", " \t# note", [[2, 8, "comment"]]],
+  ["leading layout is uncolored", " \t# note", [[2, 8, "string"]]],
 ];
 for (const [name, source, captures] of cases) {
   test(`mailmap: ${name}`, () =>
