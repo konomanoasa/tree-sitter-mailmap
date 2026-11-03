@@ -22,13 +22,6 @@ CompileFlags:
 
 ---
 If:
-  PathMatch: test/[^/]*\.c
-CompileFlags:
-  Add:
-    - -ferror-limit=0
-
----
-If:
   PathMatch: bindings/node/.*\.cc
 CompileFlags:
   CompilationDatabase: build/Release

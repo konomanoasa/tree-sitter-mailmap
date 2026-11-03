@@ -5,36 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../src/parser.c"
-#include "../src/scanner.c"
-
-#ifdef TREE_SITTER_REUSE_ALLOCATOR
-static size_t reuse_live_allocations;
-static bool reuse_fail_next_calloc;
-
-static void *reuse_calloc(size_t count, size_t size) {
-  if (reuse_fail_next_calloc) {
-    reuse_fail_next_calloc = false;
-    return NULL;
-  }
-  void *result = calloc(count, size);
-  if (result != NULL) {
-    reuse_live_allocations += 1;
-  }
-  return result;
-}
-
-static void reuse_free(void *allocation) {
-  if (allocation != NULL) {
-    assert(reuse_live_allocations > 0);
-    reuse_live_allocations -= 1;
-  }
-  free(allocation);
-}
-
-void *(*ts_current_calloc)(size_t, size_t) = reuse_calloc;
-void (*ts_current_free)(void *) = reuse_free;
-#endif
+#include "../src/tree_sitter/parser.h"
 
 struct MockLexer {
   TSLexer lexer;
@@ -80,6 +51,37 @@ init_mock_lexer(struct MockLexer *mock, const int32_t *input, size_t length) {
     .mark = SIZE_MAX,
   };
 }
+
+#include "../src/parser.c"
+#include "../src/scanner.c"
+
+#ifdef TREE_SITTER_REUSE_ALLOCATOR
+static size_t reuse_live_allocations;
+static bool reuse_fail_next_calloc;
+
+static void *reuse_calloc(size_t count, size_t size) {
+  if (reuse_fail_next_calloc) {
+    reuse_fail_next_calloc = false;
+    return NULL;
+  }
+  void *result = calloc(count, size);
+  if (result != NULL) {
+    reuse_live_allocations += 1;
+  }
+  return result;
+}
+
+static void reuse_free(void *allocation) {
+  if (allocation != NULL) {
+    assert(reuse_live_allocations > 0);
+    reuse_live_allocations -= 1;
+  }
+  free(allocation);
+}
+
+void *(*ts_current_calloc)(size_t, size_t) = reuse_calloc;
+void (*ts_current_free)(void *) = reuse_free;
+#endif
 
 struct TokenCase {
   enum Token token;

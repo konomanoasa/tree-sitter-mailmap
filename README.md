@@ -17,8 +17,7 @@ npm install @konomanoasa/tree-sitter-mailmap
 ## Development
 
 ```sh
-npm install
-npm run build
+npm ci
 npm test
 ```
 

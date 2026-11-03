@@ -183,7 +183,6 @@ function checkDiagnostics(clang, clangd, directory) {
         "-I",
         variant.includeDirectory,
         ...warningArguments,
-        "-ferror-limit=0",
         "-fsyntax-only",
         source,
       ],
